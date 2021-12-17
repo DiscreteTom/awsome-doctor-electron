@@ -4,36 +4,27 @@
  * @link {https://nuxtjs.org/guide/configuration/}
  */
 
-
-export default {
+module.exports = {
   ssr: false,
-  target: 'static',
+  target: "static",
   head: {
-    title: 'awsome-doctor',
-    meta: [{ charset: "utf-8" }]
+    title: "awsome-doctor",
+    meta: [{ charset: "utf-8" }],
   },
   loading: false,
-  plugins: [
-    {ssr: true, src: '@/plugins/icons.js'},
-    
-    
-  ],
-  buildModules: [
-    
-  ],
-  modules: [
-    '@nuxtjs/vuetify',
-  ],
-          vuetify: {
-            theme: {
-              themes: {
-                light: {
-                  primary: '#1867c0',
-                  secondary: '#b0bec5',
-                  accent: '#8c9eff',
-                  error: '#b71c1c',
-                },
-              },
-            }
-          }
+  plugins: [{ ssr: true, src: "@/plugins/icons.js" }],
+  buildModules: [],
+  modules: ["@nuxtjs/vuetify"],
+  vuetify: {
+    theme: {
+      themes: {
+        light: {
+          primary: "#1867c0",
+          secondary: "#b0bec5",
+          accent: "#8c9eff",
+          error: "#b71c1c",
+        },
+      },
+    },
+  },
 };
