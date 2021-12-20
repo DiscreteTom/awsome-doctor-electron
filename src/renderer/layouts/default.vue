@@ -12,7 +12,7 @@
       <tt-btn bottom to="/settings" icon="mdi-cog-outline" tt="Settings" />
     </v-app-bar>
     <v-main>
-      <v-container fluid>
+      <v-container>
         <nuxt />
       </v-container>
     </v-main>
@@ -21,6 +21,7 @@
 
 <script>
 import TtBtn from "../components/TtBtn.vue";
+import { ipcRenderer } from "electron";
 
 export default {
   components: { TtBtn },
