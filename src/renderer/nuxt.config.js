@@ -1,10 +1,9 @@
-/**
- * By default, Nuxt.js is configured to cover most use cases.
- * This default configuration can be overwritten in this file
- * @link {https://nuxtjs.org/guide/configuration/}
- */
+let { workflows } = require("./serverUtils/workflow-loader");
 
 module.exports = {
+  env: {
+    workflows,
+  },
   ssr: false,
   target: "static",
   head: {
