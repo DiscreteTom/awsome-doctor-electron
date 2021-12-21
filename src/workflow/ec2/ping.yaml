@@ -39,18 +39,38 @@ steps:
         $.err = e;
         return;
       }
-      let allowedCidr = $.jp.query(
+      // check `all traffic`
+      let anyTrafficCidr = $.jp.query(
+        res,
+        // allow echo request, or allow all icmp
+        "$..IpPermissions[?(@.IpProtocol=='-1')]..CidrIp"
+      );
+      if (anyTrafficCidr.length != 0) {
+        if (anyTrafficCidr[0] == "0.0.0.0/0") {
+          $.ok =
+            "The security group's inbound rules allow all traffic from 0.0.0.0/0.";
+          return;
+        } else {
+          $.info +=
+            "All traffic from those CIDRs are allowed to access this instance: " +
+            pingCidr.join(", ") +
+            ".\n";
+        }
+      }
+      // check `all icmp` or `icmp echo request`
+      let pingCidr = $.jp.query(
         res,
         // allow echo request, or allow all icmp
         "$..IpPermissions[?(@.IpProtocol=='icmp' && (@.FromPort==8 || @.FromPort==-1))]..CidrIp"
       );
-      if (allowedCidr.length == 0) {
+      if (pingCidr.length == 0) {
         $.err =
           "No IP is allowed to ping this instance, please fix your security group rules.";
-      } else if (allowedCidr.indexOf("0.0.0.0/0") != -1) {
+      } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
         $.ok = "The security group's inbound rules allow ping from 0.0.0.0/0";
       } else {
         $.info =
           "Those CIDRs are allowed to ping your instance: " +
-          allowedCidr.join(", ");
+          pingCidr.join(", ") +
+          ".\n";
       }
