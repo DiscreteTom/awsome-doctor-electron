@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <v-app-bar app>
+    <v-app-bar app clipped-left>
+      <v-app-bar-nav-icon @click.stop="leftDrawer = !leftDrawer" />
       <!-- site title -->
       <v-toolbar-title> Awsome Doctor 👩‍⚕️ 👨‍⚕️ </v-toolbar-title>
 
@@ -11,6 +12,32 @@
       <!-- settings button -->
       <tt-btn bottom to="/settings" icon="mdi-cog-outline" tt="Settings" />
     </v-app-bar>
+
+    <v-navigation-drawer v-model="leftDrawer" clipped app>
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="text-h6"> Services </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider />
+
+      <v-list-item
+        v-for="(content, category) in $workflow"
+        :key="category"
+        :to="`/${category}`"
+      >
+        <v-list-item-action>
+          <v-icon> mdi-cloud-outline </v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ category }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-navigation-drawer>
+
     <v-main>
       <v-container>
         <nuxt />
@@ -25,6 +52,11 @@ import { ipcRenderer } from "electron";
 
 export default {
   components: { TtBtn },
+  data() {
+    return {
+      leftDrawer: true,
+    };
+  },
   created() {
     ipcRenderer.on("load-config", (event, arg) => {
       this.$store.commit("loadConfig", arg);
