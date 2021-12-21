@@ -1,9 +1,9 @@
-import { S3Client } from "@aws-sdk/client-s3";
+import { EC2Client } from "@aws-sdk/client-ec2";
 
 let aws = {};
 
 function configure({ accessKeyId, secretAccessKey, region }) {
-  aws["s3"] = new S3Client({
+  aws["ec2"] = new EC2Client({
     credentials: {
       accessKeyId,
       secretAccessKey,
