@@ -9,6 +9,8 @@
 
       <!-- home button -->
       <tt-btn bottom to="/" tt="Home" icon="mdi-home-outline" />
+      <!-- edit button -->
+      <tt-btn bottom to="/editor" tt="Editor" icon="mdi-circle-edit-outline" />
       <!-- settings button -->
       <tt-btn bottom to="/settings" icon="mdi-cog-outline" tt="Settings" />
     </v-app-bar>
