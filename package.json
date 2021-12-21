@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.44.0",
+    "js-yaml": "^4.1.0",
     "jsonpath": "^1.1.1"
   }
 }
