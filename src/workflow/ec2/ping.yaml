@@ -1,28 +1,50 @@
 title: Ping is not working
-data:
+data: # define data that this workflow need to use
   instanceId: ""
   securityGroupIds: []
   allowedCidr: []
-input:
+input: # define user input
   - label: Instance ID
     placeholder: i-01234567891234567
-    store: instanceId
+    store: instanceId # store value in data
 steps:
   - name: Retrieve security groups
-    js: |
-      let res = await $aws.ec2.send(
-        new $ec2.DescribeInstancesCommand({ InstanceIds: [$data.instanceId] })
-      );
-      $data.securityGroupIds = $jp.query(res, "$..SecurityGroups[*].GroupId");
+    js: | # write a function body
+      let res;
+      try {
+        res = await $.aws.ec2.send(
+          new $.ec2.DescribeInstancesCommand({ InstanceIds: [$.data.instanceId] })
+        );
+      } catch (e) {
+        $.err = e;
+        return;
+      }
+      $.data.securityGroupIds = $.jp.query(res, "$..SecurityGroups[*].GroupId");
+      if ($.data.securityGroupIds.length != 0) {
+        $.ok = 'Got security groups: ' + $.data.securityGroupIds.join(', ')
+      } else {
+        $.err = 'No security groups associated with this instance, which is abnormal.'
+      }
   - name: Retrieve CIDRs that allows ping
     js: |
-      let res = await $aws.ec2.send(
-        new $ec2.DescribeSecurityGroupsCommand({
-          GroupIds: $data.securityGroupIds,
-          Filters: [{ Name: "ip-permission.protocol", Values: ["icmp"] }],
-        })
-      );
-      $data.allowedCidr = $jp.query(
+      let res;
+      try {
+        res = await $.aws.ec2.send(
+          new $.ec2.DescribeSecurityGroupsCommand({
+            GroupIds: $.data.securityGroupIds,
+            Filters: [{ Name: "ip-permission.protocol", Values: ["icmp"] }],
+          })
+        );
+      } catch (e) {
+        $.err = e;
+        return;
+      }
+      $.data.allowedCidr = $.jp.query(
         res,
-        "$..IpPermissions[?(@.IpProtocol=='icmp')]..CidrIp"
+        "$..IpPermissions[?(@.IpProtocol=='icmp' && @.FromPort==8)]..CidrIp"
       );
+      if ($.data.allowedCidr.length == 0) {
+        $.err = 'No IP is allowed to ping this instance, please fix your security group rules.'
+      } else {
+        $.info = 'Those CIDRs are allowed to ping your instance: ' + $.data.allowedCidr.join(', ')
+      }
