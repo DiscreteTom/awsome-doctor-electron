@@ -21,11 +21,12 @@ steps:
       }
       $.data.securityGroupIds = $.jp.query(res, "$..SecurityGroups[*].GroupId");
       if ($.data.securityGroupIds.length != 0) {
-        $.ok = 'Got security groups: ' + $.data.securityGroupIds.join(', ')
+        $.ok = "Got security groups: " + $.data.securityGroupIds.join(", ");
       } else {
-        $.err = 'No security groups associated with this instance, which is abnormal.'
+        $.err =
+          "No security groups associated with this instance, which is abnormal.";
       }
-  - name: Retrieve CIDRs that allows ping
+  - name: Check security group inbound rules
     js: |
       let res;
       try {
@@ -41,12 +42,16 @@ steps:
       }
       $.data.allowedCidr = $.jp.query(
         res,
-        "$..IpPermissions[?(@.IpProtocol=='icmp' && @.FromPort==8)]..CidrIp"
+        // allow echo request, or allow all icmp
+        "$..IpPermissions[?(@.IpProtocol=='icmp' && (@.FromPort==8 || @.FromPort==-1))]..CidrIp"
       );
       if ($.data.allowedCidr.length == 0) {
-        $.err = 'No IP is allowed to ping this instance, please fix your security group rules.'
-      } else if ($.data.allowedCidr.indexOf('0.0.0.0/0') != -1) {
-        $.ok = 'The security group\'s inbound rules allow ping from 0.0.0.0/0'
+        $.err =
+          "No IP is allowed to ping this instance, please fix your security group rules.";
+      } else if ($.data.allowedCidr.indexOf("0.0.0.0/0") != -1) {
+        $.ok = "The security group's inbound rules allow ping from 0.0.0.0/0";
       } else {
-        $.info = 'Those CIDRs are allowed to ping your instance: ' + $.data.allowedCidr.join(', ')
+        $.info =
+          "Those CIDRs are allowed to ping your instance: " +
+          $.data.allowedCidr.join(", ");
       }
