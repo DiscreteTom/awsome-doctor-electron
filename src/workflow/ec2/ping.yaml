@@ -41,7 +41,6 @@ steps:
       // check `all traffic`
       let anyTrafficCidr = $.jp.query(
         res,
-        // allow echo request, or allow all icmp
         "$..IpPermissions[?(@.IpProtocol=='-1')]..CidrIp"
       );
       if (anyTrafficCidr.length != 0) {
