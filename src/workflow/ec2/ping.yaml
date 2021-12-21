@@ -32,7 +32,6 @@ steps:
         res = await $.aws.ec2.send(
           new $.ec2.DescribeSecurityGroupsCommand({
             GroupIds: $.data.securityGroupIds,
-            Filters: [{ Name: "ip-permission.protocol", Values: ["icmp"] }],
           })
         );
       } catch (e) {
