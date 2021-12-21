@@ -46,4 +46,7 @@ export default {
 body {
   margin: 0 !important;
 }
+html {
+  overflow: auto;
+}
 </style>
