@@ -45,6 +45,8 @@ steps:
       );
       if ($.data.allowedCidr.length == 0) {
         $.err = 'No IP is allowed to ping this instance, please fix your security group rules.'
+      } else if ($.data.allowedCidr.indexOf('0.0.0.0/0') != -1) {
+        $.ok = 'The security group\'s inbound rules allow ping from 0.0.0.0/0'
       } else {
         $.info = 'Those CIDRs are allowed to ping your instance: ' + $.data.allowedCidr.join(', ')
       }
