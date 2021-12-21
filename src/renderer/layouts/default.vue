@@ -37,7 +37,7 @@ export default {
       this.$aws.configure({ ...arg, region: this.$store.state.region });
     });
 
-    ipcRenderer.send("load-config");
+    ipcRenderer.send("load-config", this.$store.getters.defaultState);
   },
 };
 </script>
