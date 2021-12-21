@@ -1,15 +1,22 @@
 <template>
   <div>
     <v-expansion-panels>
-      <v-expansion-panel>
-        <v-expansion-panel-header> EC2 </v-expansion-panel-header>
+      <v-expansion-panel
+        v-for="(content, category) in $workflow"
+        :key="category"
+      >
+        <v-expansion-panel-header> {{ category }} </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-list nav dense>
-            <v-list-item to="/ec2/ping">
+            <v-list-item
+              v-for="(workflow, workflowName) in content"
+              :key="workflowName"
+              :to="`/${category}/${workflowName}`"
+            >
               <v-list-item-icon>
                 <v-icon> mdi-link </v-icon>
               </v-list-item-icon>
-              <v-list-item-title> Ping is not working </v-list-item-title>
+              <v-list-item-title> {{ workflow.title }} </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-expansion-panel-content>
@@ -25,5 +32,6 @@ export default {
     return {};
   },
   methods: {},
+  mounted() {},
 };
 </script>

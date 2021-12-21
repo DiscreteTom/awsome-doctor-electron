@@ -1,0 +1,28 @@
+title: Ping is not working
+data:
+  instanceId: ""
+  securityGroupIds: []
+  allowedCidr: []
+input:
+  - label: Instance ID
+    placeholder: i-01234567891234567
+    store: instanceId
+steps:
+  - name: Retrieve security groups
+    js: |
+      let res = await $aws.ec2.send(
+        new $ec2.DescribeInstancesCommand({ InstanceIds: [$data.instanceId] })
+      );
+      $data.securityGroupIds = $jp.query(res, "$..SecurityGroups[*].GroupId");
+  - name: Retrieve CIDRs that allows ping
+    js: |
+      let res = await $aws.ec2.send(
+        new $ec2.DescribeSecurityGroupsCommand({
+          GroupIds: $data.securityGroupIds,
+          Filters: [{ Name: "ip-permission.protocol", Values: ["icmp"] }],
+        })
+      );
+      $data.allowedCidr = $jp.query(
+        res,
+        "$..IpPermissions[?(@.IpProtocol=='icmp')]..CidrIp"
+      );

@@ -1,7 +1,7 @@
-import yaml from "js-yaml";
-import fs from "fs";
+const yaml = require("js-yaml");
+const fs = require("fs");
 
-const WORKFLOW_DIR = "../workflow";
+const WORKFLOW_DIR = "src/workflow";
 
 /**
  * ```
@@ -44,6 +44,6 @@ fs.readdirSync(WORKFLOW_DIR, { withFileTypes: true }).map((dirent) => {
   }
 });
 
-export default {
+module.exports = {
   workflows,
 };
