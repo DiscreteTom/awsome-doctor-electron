@@ -2,12 +2,14 @@ title: Ping is not working
 data: # define data that this workflow need to use
   instanceId: ""
   securityGroupIds: []
+  vpcId: ""
+  subnetId: ""
 input: # define user input
   - label: Instance ID
     placeholder: i-01234567891234567
     store: instanceId # store value in data
 steps:
-  - name: Retrieve security groups
+  - name: Retrieve instance info.
     js: | # write a function body
       let res;
       try {
@@ -18,12 +20,21 @@ steps:
         $.err = e;
         return;
       }
+
       $.data.securityGroupIds = $.jp.query(res, "$..SecurityGroups[*].GroupId");
+      $.data.vpcId = $.jp.query(res, "$..VpcId")[0];
+      $.data.subnetId = $.jp.query(res, "$..SubnetId")[0];
+
       if ($.data.securityGroupIds.length != 0) {
-        $.ok = "Got security groups: " + $.data.securityGroupIds.join(", ");
+        $.ok = "Got security groups: " + $.data.securityGroupIds.join(", ") + ".";
       } else {
         $.err =
           "No security groups associated with this instance, which is abnormal.";
+      }
+      if ($.data.vpcId && $.data.subnetId) {
+        $.ok += ` VPC=${$.data.vpcId}, subnet=${$.data.subnetId}.`;
+      } else {
+        $.err += " Failed to retrieve VPC id and subnet id.";
       }
   - name: Check security group inbound rules
     js: |
@@ -127,4 +138,3 @@ steps:
         pingCidr.join(", ") +
         ".\n";
     }
-
