@@ -12,7 +12,11 @@ module.exports = {
     meta: [{ charset: "utf-8" }],
   },
   loading: false,
-  plugins: [{ ssr: true, src: "@/plugins/icons.js" }],
+  plugins: [
+    { ssr: true, src: "@/plugins/icons.js" },
+    { src: "@/plugins/aws.js" },
+    { src: "@/plugins/bus.js" },
+  ],
   buildModules: [],
   modules: ["@nuxtjs/vuetify"],
   vuetify: {
