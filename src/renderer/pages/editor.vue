@@ -4,7 +4,7 @@
     <v-btn @click="exportFile" class="ml-3">Export to YAML</v-btn>
     <v-btn @click="exportFile" class="ml-3">Load from YAML</v-btn>
     <div class="d-flex align-center mt-3">
-      <h2>Create a new workflow:</h2>
+      <h2>Editing workflow:</h2>
       <!-- title -->
       <v-text-field
         label="Workflow Title"
