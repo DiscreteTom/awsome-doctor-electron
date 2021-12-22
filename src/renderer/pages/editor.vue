@@ -73,7 +73,12 @@
           />
         </v-col>
         <v-col>
-          <v-text-field label="Store" v-model="input.store" hide-details />
+          <v-select
+            label="Store"
+            v-model="input.store"
+            :items="workflowData.map((d) => d.key)"
+            hide-details
+          />
         </v-col>
         <v-col cols="1">
           <v-btn icon @click="removeInput(i)">
