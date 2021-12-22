@@ -21,10 +21,8 @@
 
     <!-- data -->
     <div class="d-flex align-center">
-      <h3>Data</h3>
-      <v-btn @click="addData" icon class="ml-3">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
+      <h3 class="mr-3">Data</h3>
+      <tt-btn tt="Add Data" icon="mdi-plus" @click="addData" top />
     </div>
 
     <div v-if="workflowData.length">
@@ -40,10 +38,13 @@
         <v-col>
           <v-text-field label="Value" v-model="data.value" hide-details />
         </v-col>
-        <v-col cols="1">
-          <v-btn icon @click="removeData(i)">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+        <v-col cols="1" class="d-flex justify-center">
+          <tt-btn
+            tt="Remove Data"
+            icon="mdi-close"
+            @click="removeData(i)"
+            top
+          />
         </v-col>
       </v-row>
     </div>
@@ -55,10 +56,8 @@
 
     <!-- inputs -->
     <div class="d-flex align-center">
-      <h3>Inputs</h3>
-      <v-btn @click="addInput" icon class="ml-3">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
+      <h3 class="mr-3">Inputs</h3>
+      <tt-btn tt="Add Input" icon="mdi-plus" @click="addInput" top />
     </div>
     <div v-if="inputs.length">
       <v-row v-for="(input, i) in inputs" :key="i" class="align-center" dense>
@@ -80,10 +79,13 @@
             hide-details
           />
         </v-col>
-        <v-col cols="1">
-          <v-btn icon @click="removeInput(i)">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+        <v-col cols="1" class="d-flex justify-center">
+          <tt-btn
+            tt="Remove Input"
+            icon="mdi-close"
+            @click="removeInput(i)"
+            top
+          />
         </v-col>
       </v-row>
     </div>
@@ -95,10 +97,8 @@
 
     <!-- steps -->
     <div class="d-flex align-center">
-      <h3>Steps</h3>
-      <v-btn @click="addStep" icon class="ml-3">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
+      <h3 class="mr-3">Steps</h3>
+      <tt-btn tt="Add Step" icon="mdi-plus" @click="addStep" top />
     </div>
     <div v-if="steps.length">
       <v-row v-for="(step, i) in steps" :key="i" class="align-center" dense>
@@ -108,10 +108,14 @@
         <v-col>
           <v-textarea label="JavaScript" v-model="step.js" />
         </v-col>
-        <v-col cols="1">
-          <v-btn icon @click="removeStep(i)">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+        <v-col cols="1" class="d-flex flex-column align-center">
+          <tt-btn
+            tt="Remove Step"
+            icon="mdi-close"
+            @click="removeStep(i)"
+            top
+          />
+          <tt-btn tt="Expand" icon="mdi-arrow-expand" @click="expand(i)" top />
         </v-col>
       </v-row>
     </div>
@@ -122,7 +126,10 @@
 </template>
 
 <script>
+import TtBtn from "../components/TtBtn.vue";
+
 export default {
+  components: { TtBtn },
   data() {
     return {
       title: "",
@@ -170,6 +177,7 @@ export default {
     },
     test() {},
     exportFile() {},
+    expand(i) {},
   },
 };
 </script>
