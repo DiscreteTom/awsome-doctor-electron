@@ -122,6 +122,31 @@
     <div v-else>
       <v-alert type="info" outlined dense> No steps.</v-alert>
     </div>
+
+    <v-dialog
+      v-model="fullscreenEdit"
+      fullscreen
+      transition="dialog-bottom-transition"
+    >
+      <v-card v-if="fullscreenEdit" class="d-flex flex-column">
+        <v-toolbar dark color="primary" class="flex-grow-0">
+          <tt-btn
+            tt="Exit Fullscreen"
+            icon="mdi-close"
+            @click="fullscreenEdit = false"
+            bottom
+          />
+          <v-toolbar-title class="ml-3">
+            Editing Step: {{ steps[editingIndex].name }}
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <!-- <v-btn dark text @click="dialog = false"> Save </v-btn> -->
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-textarea v-model="steps[editingIndex].js" class="flex-grow-1" />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -136,6 +161,8 @@ export default {
       workflowData: [],
       inputs: [],
       steps: [],
+      fullscreenEdit: false,
+      editingIndex: 0,
     };
   },
   methods: {
@@ -177,7 +204,9 @@ export default {
     },
     test() {},
     exportFile() {},
-    expand(i) {},
+    expand(i) {
+      this.fullscreenEdit = true;
+    },
   },
 };
 </script>
