@@ -128,11 +128,7 @@
       fullscreen
       transition="dialog-bottom-transition"
     >
-      <v-card
-        v-if="fullscreenEdit"
-        class="d-flex flex-column"
-        style="height: 100vh"
-      >
+      <v-card class="d-flex flex-column" style="height: 100vh">
         <v-toolbar dark color="primary" class="flex-grow-0">
           <tt-btn
             tt="Exit Fullscreen"
@@ -140,15 +136,41 @@
             @click="fullscreenEdit = false"
             bottom
           />
-          <v-toolbar-title class="ml-3">
+          <v-toolbar-title class="ml-3" v-if="fullscreenEdit">
             Editing Step: {{ steps[editingIndex].name }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <span v-on="on">
+                <v-switch
+                  v-model="editorDark"
+                  inset
+                  hide-details
+                  color="black"
+                ></v-switch>
+              </span>
+            </template>
+            <span>Dark Mode</span>
+          </v-tooltip>
+          <tt-btn
+            tt="Decrease Font Size"
+            icon="mdi-format-font-size-decrease"
+            @click="changeEditorFontSize(-2)"
+            bottom
+          />
+          <tt-btn
+            tt="Increase Font Size"
+            icon="mdi-format-font-size-increase"
+            @click="changeEditorFontSize(2)"
+            bottom
+          />
+          <tt-btn tt="Save" icon="mdi-check" @click="editorSave" bottom />
           <v-toolbar-items>
             <!-- <v-btn dark text @click="dialog = false"> Save </v-btn> -->
           </v-toolbar-items>
         </v-toolbar>
-        <code-editor class="flex-grow-1" />
+        <code-editor ref="codeEditor" class="flex-grow-1" :dark="editorDark" />
         <!-- <v-textarea v-model="steps[editingIndex].js" class="flex-grow-1" /> -->
       </v-card>
     </v-dialog>
@@ -169,9 +191,15 @@ export default {
       steps: [],
       fullscreenEdit: false,
       editingIndex: 0,
+      editorDark: true,
+      editorFontSize: 10,
     };
   },
   methods: {
+    changeEditorFontSize(n) {
+      this.editorFontSize += n;
+      this.$refs.codeEditor.setFontSize(this.editorFontSize);
+    },
     addData() {
       this.workflowData.push({ key: "", value: "" });
     },
@@ -211,7 +239,15 @@ export default {
     test() {},
     exportFile() {},
     expand(i) {
+      this.editingIndex = i;
       this.fullscreenEdit = true;
+      this.$nextTick(() => {
+        this.$refs.codeEditor.setContent(this.steps[this.editingIndex].js);
+      });
+    },
+    editorSave() {
+      this.steps[this.editingIndex].js = this.$refs.codeEditor.getContent();
+      this.fullscreenEdit = false;
     },
   },
 };

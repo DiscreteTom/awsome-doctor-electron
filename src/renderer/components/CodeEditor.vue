@@ -1,6 +1,7 @@
 <template>
   <div>
     <ace-editor
+      ref="aceEditor"
       v-model="content"
       @init="editorInit"
       lang="javascript"
@@ -30,9 +31,22 @@ export default {
     editorInit: function (editor) {
       require("brace/ext/language_tools");
       require("brace/mode/javascript");
-      require(`brace/theme/${this.theme}`);
+      require(`brace/theme/chrome`);
+      require(`brace/theme/twilight`);
       require("brace/snippets/javascript");
       editor.setOption("scrollPastEnd", 1);
+      editor.setOptions({
+        fontSize: "10pt",
+      });
+    },
+    setFontSize(n) {
+      this.$refs.aceEditor.editor.setOptions({ fontSize: `${n}pt` });
+    },
+    setContent(txt) {
+      this.content = txt;
+    },
+    getContent() {
+      return this.content;
     },
   },
   computed: {
