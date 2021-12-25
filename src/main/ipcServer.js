@@ -1,6 +1,8 @@
-import { ipcMain } from "electron";
+import { ipcMain, dialog, Notification } from "electron";
 import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import fs from "fs";
+import mainWindow from "./mainWindow";
+import path from "path";
 
 const CONFIG_FILE = "config.json";
 let aws = {};
@@ -40,7 +42,36 @@ ipcMain.on("update-config", (event, arg) => {
 });
 
 ipcMain.on("open-workflow-yaml", (event, arg) => {
-  fs.readFile(arg, (err, data) => {
-    event.reply("open-workflow-yaml", data.toString("utf-8"));
+  fs.readFile(arg.filePath, (err, data) => {
+    event.reply("open-workflow-yaml", {
+      ...arg,
+      content: data.toString("utf-8"),
+    });
+  });
+});
+
+ipcMain.on("choose-file", async (event, arg) => {
+  const result = await dialog.showSaveDialog(mainWindow.browserWindow, arg);
+
+  if (!result.canceled) {
+    let filePath = result.filePath;
+    if (!filePath.endsWith(".yml") && filePath.endsWith(".yaml"))
+      filePath += ".yml";
+    event.reply("choose-file", {
+      filePath,
+      fileName: path.basename(filePath),
+    });
+  }
+});
+
+ipcMain.on("save-file", (event, arg) => {
+  fs.writeFile(arg.filePath, arg.data, "utf-8", (err) => {
+    if (err) console.log(err);
+    else {
+      new Notification({
+        title: "Saved",
+        body: `Location: ${arg.filePath}`,
+      }).show();
+    }
   });
 });

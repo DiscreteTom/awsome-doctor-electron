@@ -1,7 +1,20 @@
 <template>
   <div>
-    <v-btn @click="exportFile">Export to YAML</v-btn>
-    <v-btn @click="$refs.fileInput.click()" class="ml-3">Load from YAML</v-btn>
+    <div class="d-flex align-center">
+      <v-btn @click="exportNewFile"> Export to YAML </v-btn>
+      <v-btn @click="$refs.fileInput.click()" class="ml-3">
+        Load from YAML
+      </v-btn>
+
+      <span style="font-weight: bold" class="mx-3"> File: </span>
+      <v-tooltip bottom v-if="currentFileName">
+        <template v-slot:activator="{ on }">
+          <span v-on="on"> {{ currentFileName }} </span>
+        </template>
+        <span>{{ currentFilePath }}</span>
+      </v-tooltip>
+      <span v-else> Untitled </span>
+    </div>
     <div class="d-flex align-center mt-3">
       <h2>Editing workflow:</h2>
       <!-- title -->
@@ -224,7 +237,7 @@
       type="file"
       ref="fileInput"
       style="display: none"
-      @change="fileChosen"
+      @input="fileChosen"
     />
   </div>
 </template>
@@ -235,19 +248,6 @@ import TtBtn from "../components/TtBtn.vue";
 import WorkflowExecutor from "../components/WorkflowExecutor.vue";
 import { ipcRenderer } from "electron";
 import * as yaml from "js-yaml";
-
-function download(filename, text) {
-  var element = document.createElement("a");
-  element.setAttribute(
-    "href",
-    "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-  );
-  element.setAttribute("download", filename);
-  element.style.display = "none";
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
-}
 
 export default {
   components: { TtBtn, CodeEditor, WorkflowExecutor },
@@ -262,6 +262,8 @@ export default {
       editorDark: true,
       editorFontSize: 10,
       editorShowInvisible: true,
+      currentFilePath: null,
+      currentFileName: null,
     };
   },
   methods: {
@@ -305,8 +307,19 @@ export default {
       }
       this.steps = result;
     },
-    exportFile() {
-      download(this.title + ".yaml", yaml.dump(this.computedWorkflow));
+    exportNewFile() {
+      ipcRenderer.send("choose-file", { title: "Save workflow" });
+      // download(this.title + ".yaml", yaml.dump(this.computedWorkflow));
+    },
+    saveFile() {
+      if (this.currentFilePath) {
+        ipcRenderer.send("save-file", {
+          filePath: this.currentFilePath,
+          data: yaml.dump(this.computedWorkflow),
+        });
+      } else {
+        this.exportNewFile();
+      }
     },
     expand(i) {
       this.editingIndex = i;
@@ -316,7 +329,13 @@ export default {
       this.fullscreenEdit = false;
     },
     fileChosen(event) {
-      ipcRenderer.send("open-workflow-yaml", event.target.files[0].path);
+      if (event.target.files.length > 0) {
+        ipcRenderer.send("open-workflow-yaml", {
+          filePath: event.target.files[0].path,
+          fileName: event.target.files[0].name,
+        });
+        this.$refs.fileInput.value = null;
+      }
     },
     _eval(key, value) {
       try {
@@ -327,10 +346,17 @@ export default {
         return e;
       }
     },
+    handleKeyDown(e) {
+      // ctrl s
+      if (e.keyCode === 83 && e.ctrlKey) {
+        e.preventDefault();
+        this.saveFile();
+      }
+    },
   },
   created() {
     ipcRenderer.on("open-workflow-yaml", (event, arg) => {
-      let content = yaml.load(arg);
+      let content = yaml.load(arg.content);
       this.title = content.title;
       this.workflowData = [];
       for (let key in content.data) {
@@ -341,6 +367,14 @@ export default {
       }
       this.inputs = content.input;
       this.steps = content.steps;
+      this.currentFilePath = arg.filePath;
+      this.currentFileName = arg.fileName;
+    });
+
+    ipcRenderer.on("choose-file", (event, arg) => {
+      this.currentFilePath = arg.filePath;
+      this.currentFileName = arg.fileName;
+      this.saveFile();
     });
   },
   computed: {
@@ -360,6 +394,13 @@ export default {
       });
       return result;
     },
+  },
+  mounted() {
+    document.addEventListener("keydown", this.handleKeyDown);
+  },
+
+  beforeDestroy() {
+    document.removeEventListener("keydown", this.handleKeyDown);
   },
 };
 </script>
