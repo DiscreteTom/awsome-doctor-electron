@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-btn @click="test" color="success">Test Workflow</v-btn>
     <v-btn @click="exportFile" class="ml-3">Export to YAML</v-btn>
     <v-btn @click="$refs.fileInput.click()" class="ml-3">Load from YAML</v-btn>
     <div class="d-flex align-center mt-3">
@@ -35,7 +34,7 @@
             </v-col>
             <v-col>
               <v-text-field
-                label="Literal Value (YAML)"
+                label="Default Value (YAML)"
                 v-model="data.value"
                 hide-details
               />
@@ -131,6 +130,14 @@
           <v-btn @click="addStep" class="mt-3">Add Step</v-btn>
         </v-expansion-panel-content>
       </v-expansion-panel>
+
+      <!-- test -->
+      <v-expansion-panel>
+        <v-expansion-panel-header> Test </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <workflow-executor :workflow="computedWorkflow" />
+        </v-expansion-panel-content>
+      </v-expansion-panel>
     </v-expansion-panels>
 
     <v-dialog
@@ -207,6 +214,7 @@
 <script>
 import CodeEditor from "../components/CodeEditor.vue";
 import TtBtn from "../components/TtBtn.vue";
+import WorkflowExecutor from "../components/WorkflowExecutor.vue";
 import { ipcRenderer } from "electron";
 import * as yaml from "js-yaml";
 
@@ -224,7 +232,7 @@ function download(filename, text) {
 }
 
 export default {
-  components: { TtBtn, CodeEditor },
+  components: { TtBtn, CodeEditor, WorkflowExecutor },
   data() {
     return {
       title: "",
@@ -278,18 +286,8 @@ export default {
       }
       this.steps = result;
     },
-    test() {},
     exportFile() {
-      let result = {
-        title: this.title,
-        data: {},
-        input: this.inputs,
-        steps: this.steps,
-      };
-      this.workflowData.forEach((d) => {
-        result.data[d.key] = yaml.load(d.value);
-      });
-      download(this.title + ".yaml", yaml.dump(result));
+      download(this.title + ".yaml", yaml.dump(this.computedWorkflow));
     },
     expand(i) {
       this.editingIndex = i;
@@ -325,6 +323,24 @@ export default {
       this.inputs = content.input;
       this.steps = content.steps;
     });
+  },
+  computed: {
+    computedWorkflow() {
+      let result = {
+        title: this.title,
+        data: {},
+        input: this.inputs,
+        steps: this.steps,
+      };
+      this.workflowData.forEach((d) => {
+        try {
+          result.data[d.key] = yaml.load(d.value);
+        } catch (e) {
+          result.data[d.key] = e;
+        }
+      });
+      return result;
+    },
   },
 };
 </script>
