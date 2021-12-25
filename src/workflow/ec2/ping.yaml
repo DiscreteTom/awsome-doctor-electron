@@ -9,7 +9,7 @@ input:
     placeholder: i-01234567891234567
     store: instanceId
 steps:
-  - name: Retrieve instance info.
+  - name: Retrieve instance info, check public IP.
     js: |
       let res;
       try {
@@ -96,7 +96,7 @@ steps:
           ", "
         )}. `;
       }
-  - name: Check security group outbound rules
+  - name: Check security group outbound rules.
     js: |
       let res;
       try {
