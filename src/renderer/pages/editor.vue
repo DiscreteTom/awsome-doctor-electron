@@ -34,7 +34,7 @@
             </v-col>
             <v-col>
               <v-text-field
-                label="Default Value (YAML)"
+                label="Initial Value (YAML)"
                 v-model="data.value"
                 hide-details
               />
