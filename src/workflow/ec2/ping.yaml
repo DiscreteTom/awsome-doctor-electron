@@ -1,16 +1,16 @@
 title: Ping is not working
-data: # define data that this workflow need to use
-  instanceId: ""
+data:
+  instanceId: ''
   securityGroupIds: []
-  vpcId: ""
-  subnetId: ""
-input: # define user input
+  vpcId: ''
+  subnetId: ''
+input:
   - label: Instance ID
     placeholder: i-01234567891234567
-    store: instanceId # store value in data
+    store: instanceId
 steps:
   - name: Retrieve instance info.
-    js: | # write a function body
+    js: |
       let res;
       try {
         res = await $.aws.ec2.send(
@@ -25,7 +25,7 @@ steps:
       $.data.vpcId = $.jp.query(res, "$..VpcId")[0];
       $.data.subnetId = $.jp.query(res, "$..SubnetId")[0];
 
-      if ($.data.securityGroupIds.length != 0) {
+      if ($.data.securityGroupIds.length !== 0) {
         $.ok = "Got security groups: " + $.data.securityGroupIds.join(", ") + ".";
       } else {
         $.err =
@@ -55,7 +55,7 @@ steps:
         "$..IpPermissions[?(@.IpProtocol=='-1')]..CidrIp"
       );
       let maybeAll = false;
-      if (anyTrafficCidr.length != 0) {
+      if (anyTrafficCidr.length !== 0) {
         if (anyTrafficCidr[0] == "0.0.0.0/0") {
           $.ok =
             "The security group's inbound rules allow all traffic from 0.0.0.0/0.";
@@ -63,7 +63,7 @@ steps:
         } else {
           $.info +=
             "All traffic from those CIDRs are allowed to access this instance: " +
-            pingCidr.join(", ") +
+            anyTrafficCidr.join(", ") +
             ".\n";
           maybeAll = true;
         }
@@ -74,7 +74,7 @@ steps:
         // allow echo request, or allow all icmp
         "$..IpPermissions[?(@.IpProtocol=='icmp' && (@.FromPort==8 || @.FromPort==-1))]..CidrIp"
       );
-      if (pingCidr.length == 0) {
+      if (pingCidr.length === 0) {
         if (!maybeAll) {
           $.err =
             "No IP is allowed to ping this instance, please fix your security group rules.";
@@ -88,53 +88,4 @@ steps:
           ".\n";
       }
   - name: Check security group outbound rules
-    js: |
-      let res;
-      try {
-        res = await $.aws.ec2.send(
-          new $.ec2.DescribeSecurityGroupsCommand({
-            GroupIds: $.data.securityGroupIds,
-          })
-        );
-      } catch (e) {
-        $.err = e;
-        return;
-      }
-      // check `all traffic`
-      let anyTrafficCidr = $.jp.query(
-        res,
-        "$..IpPermissionsEgress[?(@.IpProtocol=='-1')]..CidrIp"
-      );
-      let maybeAll = false;
-      if (anyTrafficCidr.length != 0) {
-        if (anyTrafficCidr[0] == "0.0.0.0/0") {
-          $.ok =
-            "The security group's outbound rules allow all traffic to 0.0.0.0/0.";
-          return;
-        } else {
-          $.info +=
-            "All traffic to those CIDRs are allowed to access this instance: " +
-            pingCidr.join(", ") +
-            ".\n";
-          maybeAll = true;
-        }
-      }
-      // check `all icmp` or `icmp echo request`
-      let pingCidr = $.jp.query(
-        res,
-        // allow echo reply, or allow all icmp
-        "$..IpPermissionsEgress[?(@.IpProtocol=='icmp' && (@.FromPort==0 || @.FromPort==-1))]..CidrIp"
-      );
-      if (pingCidr.length == 0) {
-        if (!maybeAll) {
-          $.err =
-            "No IP is allowed to ping this instance, please fix your security group rules.";
-        }
-      } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
-        $.ok = "The security group's outbound rules allow ping to 0.0.0.0/0";
-      } else {
-        $.info +=
-          "Those CIDRs are allowed to ping your instance: " +
-          pingCidr.join(", ") +
-          ".\n";
-      }
+    js: "let res;\r\ntry {\r\n  res = await $.aws.ec2.send(\r\n    new $.ec2.DescribeSecurityGroupsCommand({\r\n      GroupIds: $.data.securityGroupIds,\r\n    })\r\n  );\r\n} catch (e) {\r\n  $.err = e;\r\n  return;\r\n}\r\n// check `all traffic`\r\nlet anyTrafficCidr = $.jp.query(\r\n  res,\r\n  \"$..IpPermissionsEgress[?(@.IpProtocol=='-1')]..CidrIp\"\r\n);\r\nlet maybeAll = false;\r\nif (anyTrafficCidr.length !== 0) {\r\n  if (anyTrafficCidr[0] == \"0.0.0.0/0\") {\r\n    $.ok =\r\n      \"The security group's outbound rules allow all traffic to 0.0.0.0/0.\";\r\n    return;\r\n  } else {\r\n    $.info +=\r\n      \"All traffic to those CIDRs are allowed to access this instance: \" +\r\n      anyTrafficCidr.join(\", \") +\r\n      \".\\n\";\r\n    maybeAll = true;\r\n  }\r\n}\r\n// check `all icmp` or `icmp echo request`\r\nlet pingCidr = $.jp.query(\r\n  res,\r\n  // allow echo reply, or allow all icmp\r\n  \"$..IpPermissionsEgress[?(@.IpProtocol=='icmp' && (@.FromPort==0 || @.FromPort==-1))]..CidrIp\"\r\n);\r\n\r\nif (pingCidr.length === 0) {\r\n  if (!maybeAll) {\r\n    $.err =\r\n      \"No IP is allowed to ping this instance, please fix your security group rules.\";\r\n  }\r\n} else if (pingCidr.indexOf(\"0.0.0.0/0\") != -1) {\r\n  $.ok = \"The security group's outbound rules allow ping to 0.0.0.0/0\";\r\n} else {\r\n  $.info +=\r\n    \"Those CIDRs are allowed to ping your instance: \" +\r\n    pingCidr.join(\", \") +\r\n    \".\\n\";\r\n}\r\n"
