@@ -38,3 +38,9 @@ ipcMain.on("load-config", (event, arg) => {
 ipcMain.on("update-config", (event, arg) => {
   fs.writeFile(CONFIG_FILE, JSON.stringify(arg), "utf-8", () => {});
 });
+
+ipcMain.on("open-workflow-yaml", (event, arg) => {
+  fs.readFile(arg, (err, data) => {
+    event.reply("open-workflow-yaml", data.toString("utf-8"));
+  });
+});

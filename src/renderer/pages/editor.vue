@@ -2,7 +2,7 @@
   <div>
     <v-btn @click="test" color="success">Test Workflow</v-btn>
     <v-btn @click="exportFile" class="ml-3">Export to YAML</v-btn>
-    <v-btn @click="exportFile" class="ml-3">Load from YAML</v-btn>
+    <v-btn @click="$refs.fileInput.click()" class="ml-3">Load from YAML</v-btn>
     <div class="d-flex align-center mt-3">
       <h2>Editing workflow:</h2>
       <!-- title -->
@@ -183,12 +183,34 @@
         />
       </v-card>
     </v-dialog>
+
+    <input
+      type="file"
+      ref="fileInput"
+      style="display: none"
+      @change="fileChosen"
+    />
   </div>
 </template>
 
 <script>
 import CodeEditor from "../components/CodeEditor.vue";
 import TtBtn from "../components/TtBtn.vue";
+import { ipcRenderer } from "electron";
+import * as yaml from "js-yaml";
+
+function download(filename, text) {
+  var element = document.createElement("a");
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+  );
+  element.setAttribute("download", filename);
+  element.style.display = "none";
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
 
 export default {
   components: { TtBtn, CodeEditor },
@@ -246,7 +268,18 @@ export default {
       this.steps = result;
     },
     test() {},
-    exportFile() {},
+    exportFile() {
+      let result = {
+        title: this.title,
+        data: {},
+        input: this.inputs,
+        steps: this.steps,
+      };
+      this.workflowData.forEach((d) => {
+        result.data[d.key] = eval(d.value);
+      });
+      download(this.title + ".yaml", yaml.dump(result));
+    },
     expand(i) {
       this.editingIndex = i;
       this.fullscreenEdit = true;
@@ -254,6 +287,24 @@ export default {
     editorSave() {
       this.fullscreenEdit = false;
     },
+    fileChosen(event) {
+      ipcRenderer.send("open-workflow-yaml", event.target.files[0].path);
+    },
+  },
+  created() {
+    ipcRenderer.on("open-workflow-yaml", (event, arg) => {
+      let content = yaml.load(arg);
+      this.title = content.title;
+      this.workflowData = [];
+      for (let key in content.data) {
+        this.workflowData.push({
+          key,
+          value: JSON.stringify(content.data[key]),
+        });
+      }
+      this.inputs = content.input;
+      this.steps = content.steps;
+    });
   },
 };
 </script>
