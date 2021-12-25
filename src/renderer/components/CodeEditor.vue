@@ -21,6 +21,7 @@ export default {
     dark: Boolean,
     value: String,
     scrollPastEnd: Number,
+    showInvisibles: Boolean,
   },
   components: {
     "ace-editor": require("vue2-ace-editor"),
@@ -37,6 +38,12 @@ export default {
       }
       editor.setOptions({
         fontSize: "10pt",
+        showInvisibles: this.showInvisibles,
+      });
+      editor.session.setOptions({
+        mode: "ace/mode/javascript",
+        tabSize: 2,
+        useSoftTabs: true,
       });
     },
     setFontSize(n) {
@@ -46,6 +53,11 @@ export default {
   computed: {
     theme() {
       return this.dark ? "twilight" : "chrome";
+    },
+  },
+  watch: {
+    showInvisibles(val) {
+      this.$refs.aceEditor.editor.setOptions({ showInvisibles: val });
     },
   },
 };

@@ -110,7 +110,12 @@
               <v-text-field label="Name" v-model="step.name" hide-details />
             </v-col>
             <v-col>
-              <code-editor :dark="editorDark" v-model="step.js" height="200" />
+              <code-editor
+                :dark="editorDark"
+                v-model="step.js"
+                height="200"
+                :showInvisibles="editorShowInvisible"
+              />
             </v-col>
             <v-col cols="1" class="d-flex flex-column align-center">
               <tt-btn
@@ -174,6 +179,18 @@
             </template>
             <span>Dark Mode</span>
           </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <span v-on="on">
+                <v-switch
+                  v-model="editorShowInvisible"
+                  inset
+                  hide-details
+                ></v-switch>
+              </span>
+            </template>
+            <span>Show Invisibles</span>
+          </v-tooltip>
           <tt-btn
             tt="Decrease Font Size"
             icon="mdi-format-font-size-decrease"
@@ -198,6 +215,7 @@
           :dark="editorDark"
           :value="steps[editingIndex].js"
           @input="steps[editingIndex].js = $event"
+          :showInvisibles="editorShowInvisible"
         />
       </v-card>
     </v-dialog>
@@ -243,6 +261,7 @@ export default {
       editingIndex: 0,
       editorDark: true,
       editorFontSize: 10,
+      editorShowInvisible: true,
     };
   },
   methods: {
