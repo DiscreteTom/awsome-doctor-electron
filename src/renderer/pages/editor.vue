@@ -19,121 +19,119 @@
 
     <v-divider class="my-2" />
 
-    <!-- data -->
-    <div class="d-flex align-center">
-      <h3 class="mr-3">Data</h3>
-      <tt-btn tt="Add Data" icon="mdi-plus" @click="addData" top />
-    </div>
+    <v-expansion-panels multiple accordion>
+      <!-- data -->
+      <v-expansion-panel>
+        <v-expansion-panel-header> Data </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-row
+            v-for="(data, i) in workflowData"
+            :key="i"
+            class="align-center"
+            dense
+          >
+            <v-col cols="3">
+              <v-text-field label="Key" v-model="data.key" hide-details />
+            </v-col>
+            <v-col>
+              <v-text-field
+                label="Literal Value (YAML)"
+                v-model="data.value"
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                label="Rendered (YAML)"
+                :value="_eval(data.key, data.value)"
+                hide-details
+                disabled
+              />
+            </v-col>
+            <v-col cols="1" class="d-flex justify-center">
+              <tt-btn
+                tt="Remove Data"
+                icon="mdi-close"
+                @click="removeData(i)"
+                top
+              />
+            </v-col>
+          </v-row>
+          <v-btn @click="addData" class="mt-3">Add Data</v-btn>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
 
-    <div v-if="workflowData.length">
-      <v-row
-        v-for="(data, i) in workflowData"
-        :key="i"
-        class="align-center"
-        dense
-      >
-        <v-col cols="3">
-          <v-text-field label="Key" v-model="data.key" hide-details />
-        </v-col>
-        <v-col>
-          <v-text-field
-            label="Literal Value (YAML)"
-            v-model="data.value"
-            hide-details
-          />
-        </v-col>
-        <v-col>
-          <v-text-field
-            label="Rendered (YAML)"
-            :value="_eval(data.key, data.value)"
-            hide-details
-            disabled
-          />
-        </v-col>
-        <v-col cols="1" class="d-flex justify-center">
-          <tt-btn
-            tt="Remove Data"
-            icon="mdi-close"
-            @click="removeData(i)"
-            top
-          />
-        </v-col>
-      </v-row>
-    </div>
-    <div v-else>
-      <v-alert type="info" outlined dense> No data.</v-alert>
-    </div>
+      <!-- inputs -->
+      <v-expansion-panel>
+        <v-expansion-panel-header> Inputs </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-row
+            v-for="(input, i) in inputs"
+            :key="i"
+            class="align-center"
+            dense
+          >
+            <v-col>
+              <v-text-field label="Label" v-model="input.label" hide-details />
+            </v-col>
+            <v-col>
+              <v-text-field
+                label="Placeholder"
+                v-model="input.placeholder"
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-select
+                label="Store"
+                v-model="input.store"
+                :items="workflowData.map((d) => d.key)"
+                hide-details
+              />
+            </v-col>
+            <v-col cols="1" class="d-flex justify-center">
+              <tt-btn
+                tt="Remove Input"
+                icon="mdi-close"
+                @click="removeInput(i)"
+                top
+              />
+            </v-col>
+          </v-row>
+          <v-btn @click="addInput" class="mt-3">Add Input</v-btn>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
 
-    <v-divider class="my-2" />
-
-    <!-- inputs -->
-    <div class="d-flex align-center">
-      <h3 class="mr-3">Inputs</h3>
-      <tt-btn tt="Add Input" icon="mdi-plus" @click="addInput" top />
-    </div>
-    <div v-if="inputs.length">
-      <v-row v-for="(input, i) in inputs" :key="i" class="align-center" dense>
-        <v-col>
-          <v-text-field label="Label" v-model="input.label" hide-details />
-        </v-col>
-        <v-col>
-          <v-text-field
-            label="Placeholder"
-            v-model="input.placeholder"
-            hide-details
-          />
-        </v-col>
-        <v-col>
-          <v-select
-            label="Store"
-            v-model="input.store"
-            :items="workflowData.map((d) => d.key)"
-            hide-details
-          />
-        </v-col>
-        <v-col cols="1" class="d-flex justify-center">
-          <tt-btn
-            tt="Remove Input"
-            icon="mdi-close"
-            @click="removeInput(i)"
-            top
-          />
-        </v-col>
-      </v-row>
-    </div>
-    <div v-else>
-      <v-alert type="info" outlined dense> No inputs.</v-alert>
-    </div>
-
-    <v-divider class="my-2" />
-
-    <!-- steps -->
-    <div class="d-flex align-center">
-      <h3 class="mr-3">Steps</h3>
-      <tt-btn tt="Add Step" icon="mdi-plus" @click="addStep" top />
-    </div>
-    <div v-if="steps.length">
-      <v-row v-for="(step, i) in steps" :key="i" class="align-center" dense>
-        <v-col cols="3">
-          <v-text-field label="Name" v-model="step.name" hide-details />
-        </v-col>
-        <v-col>
-          <code-editor :dark="editorDark" v-model="step.js" height="200" />
-        </v-col>
-        <v-col cols="1" class="d-flex flex-column align-center">
-          <tt-btn
-            tt="Remove Step"
-            icon="mdi-close"
-            @click="removeStep(i)"
-            top
-          />
-          <tt-btn tt="Expand" icon="mdi-arrow-expand" @click="expand(i)" top />
-        </v-col>
-      </v-row>
-    </div>
-    <div v-else>
-      <v-alert type="info" outlined dense> No steps.</v-alert>
-    </div>
+      <!-- steps -->
+      <v-expansion-panel>
+        <v-expansion-panel-header> Steps </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-row v-for="(step, i) in steps" :key="i" class="align-center" dense>
+            <v-col cols="3">
+              <v-text-field label="Name" v-model="step.name" hide-details />
+            </v-col>
+            <v-col>
+              <code-editor :dark="editorDark" v-model="step.js" height="200" />
+            </v-col>
+            <v-col cols="1" class="d-flex flex-column align-center">
+              <tt-btn
+                tt="Remove Step"
+                icon="mdi-close"
+                @click="removeStep(i)"
+                top
+              />
+              <tt-btn
+                tt="Expand"
+                icon="mdi-arrow-expand"
+                @click="expand(i)"
+                top
+              />
+            </v-col>
+          </v-row>
+          <v-btn @click="addStep" class="mt-3">Add Step</v-btn>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
 
     <v-dialog
       v-model="fullscreenEdit"
