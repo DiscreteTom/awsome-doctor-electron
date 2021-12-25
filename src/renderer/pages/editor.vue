@@ -106,7 +106,7 @@
           <v-text-field label="Name" v-model="step.name" hide-details />
         </v-col>
         <v-col>
-          <v-textarea label="JavaScript" v-model="step.js" />
+          <code-editor :dark="editorDark" v-model="step.js" height="200" />
         </v-col>
         <v-col cols="1" class="d-flex flex-column align-center">
           <tt-btn
