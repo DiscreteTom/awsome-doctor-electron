@@ -36,7 +36,19 @@
           <v-text-field label="Key" v-model="data.key" hide-details />
         </v-col>
         <v-col>
-          <v-text-field label="Value" v-model="data.value" hide-details />
+          <v-text-field
+            label="Literal Value (YAML)"
+            v-model="data.value"
+            hide-details
+          />
+        </v-col>
+        <v-col>
+          <v-text-field
+            label="Rendered (YAML)"
+            :value="_eval(data.key, data.value)"
+            hide-details
+            disabled
+          />
         </v-col>
         <v-col cols="1" class="d-flex justify-center">
           <tt-btn
@@ -277,7 +289,7 @@ export default {
         steps: this.steps,
       };
       this.workflowData.forEach((d) => {
-        result.data[d.key] = eval(d.value);
+        result.data[d.key] = yaml.load(d.value);
       });
       download(this.title + ".yaml", yaml.dump(result));
     },
@@ -291,6 +303,15 @@ export default {
     fileChosen(event) {
       ipcRenderer.send("open-workflow-yaml", event.target.files[0].path);
     },
+    _eval(key, value) {
+      try {
+        let result = {};
+        result[key] = yaml.load(value);
+        return yaml.dump(result, { flowLevel: 1 });
+      } catch (e) {
+        return e;
+      }
+    },
   },
   created() {
     ipcRenderer.on("open-workflow-yaml", (event, arg) => {
@@ -300,7 +321,7 @@ export default {
       for (let key in content.data) {
         this.workflowData.push({
           key,
-          value: JSON.stringify(content.data[key]),
+          value: yaml.dump(content.data[key]),
         });
       }
       this.inputs = content.input;
