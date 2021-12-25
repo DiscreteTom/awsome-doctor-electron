@@ -20,6 +20,7 @@ export default {
     height: String,
     dark: Boolean,
     value: String,
+    scrollPastEnd: Number,
   },
   components: {
     "ace-editor": require("vue2-ace-editor"),
@@ -31,7 +32,9 @@ export default {
       require(`brace/theme/chrome`);
       require(`brace/theme/twilight`);
       require("brace/snippets/javascript");
-      editor.setOption("scrollPastEnd", 1);
+      if (this.scrollPastEnd) {
+        editor.setOption("scrollPastEnd", this.scrollPastEnd);
+      }
       editor.setOptions({
         fontSize: "10pt",
       });

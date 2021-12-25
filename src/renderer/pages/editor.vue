@@ -177,6 +177,7 @@
         <code-editor
           ref="codeEditor"
           class="flex-grow-1"
+          :scrollPastEnd="1"
           :dark="editorDark"
           :value="steps[editingIndex].js"
           @input="steps[editingIndex].js = $event"
