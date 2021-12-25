@@ -128,7 +128,11 @@
       fullscreen
       transition="dialog-bottom-transition"
     >
-      <v-card v-if="fullscreenEdit" class="d-flex flex-column">
+      <v-card
+        v-if="fullscreenEdit"
+        class="d-flex flex-column"
+        style="height: 100vh"
+      >
         <v-toolbar dark color="primary" class="flex-grow-0">
           <tt-btn
             tt="Exit Fullscreen"
@@ -144,17 +148,19 @@
             <!-- <v-btn dark text @click="dialog = false"> Save </v-btn> -->
           </v-toolbar-items>
         </v-toolbar>
-        <v-textarea v-model="steps[editingIndex].js" class="flex-grow-1" />
+        <code-editor class="flex-grow-1" />
+        <!-- <v-textarea v-model="steps[editingIndex].js" class="flex-grow-1" /> -->
       </v-card>
     </v-dialog>
   </div>
 </template>
 
 <script>
+import CodeEditor from "../components/CodeEditor.vue";
 import TtBtn from "../components/TtBtn.vue";
 
 export default {
-  components: { TtBtn },
+  components: { TtBtn, CodeEditor },
   data() {
     return {
       title: "",
