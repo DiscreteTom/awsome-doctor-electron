@@ -8,7 +8,7 @@
       :width="width"
       :height="height"
       :value="value"
-      @input="$emit('input', $event)"
+      @input="$emit('input', $event.replace('\r', ''))"
     ></ace-editor>
   </div>
 </template>
