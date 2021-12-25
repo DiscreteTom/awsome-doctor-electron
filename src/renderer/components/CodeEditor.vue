@@ -2,27 +2,24 @@
   <div>
     <ace-editor
       ref="aceEditor"
-      v-model="content"
       @init="editorInit"
       lang="javascript"
       :theme="theme"
       :width="width"
       :height="height"
+      :value="value"
+      @input="$emit('input', $event)"
     ></ace-editor>
   </div>
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      content: "",
-    };
-  },
   props: {
     width: String,
     height: String,
     dark: Boolean,
+    value: String,
   },
   components: {
     "ace-editor": require("vue2-ace-editor"),
@@ -41,12 +38,6 @@ export default {
     },
     setFontSize(n) {
       this.$refs.aceEditor.editor.setOptions({ fontSize: `${n}pt` });
-    },
-    setContent(txt) {
-      this.content = txt;
-    },
-    getContent() {
-      return this.content;
     },
   },
   computed: {

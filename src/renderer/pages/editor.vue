@@ -128,7 +128,11 @@
       fullscreen
       transition="dialog-bottom-transition"
     >
-      <v-card class="d-flex flex-column" style="height: 100vh">
+      <v-card
+        v-if="fullscreenEdit"
+        class="d-flex flex-column"
+        style="height: 100vh"
+      >
         <v-toolbar dark color="primary" class="flex-grow-0">
           <tt-btn
             tt="Exit Fullscreen"
@@ -136,7 +140,7 @@
             @click="fullscreenEdit = false"
             bottom
           />
-          <v-toolbar-title class="ml-3" v-if="fullscreenEdit">
+          <v-toolbar-title class="ml-3">
             Editing Step: {{ steps[editingIndex].name }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
@@ -170,8 +174,13 @@
             <!-- <v-btn dark text @click="dialog = false"> Save </v-btn> -->
           </v-toolbar-items>
         </v-toolbar>
-        <code-editor ref="codeEditor" class="flex-grow-1" :dark="editorDark" />
-        <!-- <v-textarea v-model="steps[editingIndex].js" class="flex-grow-1" /> -->
+        <code-editor
+          ref="codeEditor"
+          class="flex-grow-1"
+          :dark="editorDark"
+          :value="steps[editingIndex].js"
+          @input="steps[editingIndex].js = $event"
+        />
       </v-card>
     </v-dialog>
   </div>
@@ -241,12 +250,8 @@ export default {
     expand(i) {
       this.editingIndex = i;
       this.fullscreenEdit = true;
-      this.$nextTick(() => {
-        this.$refs.codeEditor.setContent(this.steps[this.editingIndex].js);
-      });
     },
     editorSave() {
-      this.steps[this.editingIndex].js = this.$refs.codeEditor.getContent();
       this.fullscreenEdit = false;
     },
   },
