@@ -43,7 +43,7 @@ steps:
       } else {
         $.err += "Failed to retrieve VPC id and subnet id. ";
       }
-  - name: Check security group inbound & outbound rules.
+  - name: Check security group inbound rules.
     js: |-
       let res;
       try {
