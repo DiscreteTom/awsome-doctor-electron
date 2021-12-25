@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn @click="exportFile" class="ml-3">Export to YAML</v-btn>
+    <v-btn @click="exportFile">Export to YAML</v-btn>
     <v-btn @click="$refs.fileInput.click()" class="ml-3">Load from YAML</v-btn>
     <div class="d-flex align-center mt-3">
       <h2>Editing workflow:</h2>
