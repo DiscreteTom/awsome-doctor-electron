@@ -309,7 +309,6 @@ export default {
     },
     exportNewFile() {
       ipcRenderer.send("choose-file", { title: "Save workflow" });
-      // download(this.title + ".yaml", yaml.dump(this.computedWorkflow));
     },
     saveFile() {
       if (this.currentFilePath) {
