@@ -9,6 +9,31 @@ input:
     placeholder: i-01234567891234567
     store: instanceId
 steps:
+  - name: Instance status check.
+    js: |
+      try {
+        let res = await $.aws.ec2.send(
+          new $.ec2.DescribeInstanceStatusCommand({
+            InstanceIds: [$.data.instanceId],
+          })
+        );
+
+        if (res.InstanceStatuses[0].InstanceState.Name != "running") {
+          $.err = `Instance is not running. Instance state: ${res.InstanceStatuses[0].InstanceState.Name}. `;
+          return;
+        } else if (res.InstanceStatuses[0].InstanceStatus.Status != "ok") {
+          $.err = `Instance status check failed. Status: ${res.InstanceStatuses[0].InstanceStatus.Status}. `;
+          return;
+        } else if (res.InstanceStatuses[0].SystemStatus.Status != "ok") {
+          $.err = `System status check failed. Status: ${res.InstanceStatuses[0].SystemStatus.Status}. `;
+          return;
+        }
+      } catch (e) {
+        $.err = e;
+        return;
+      }
+
+      $.ok = "Instance is running, all status check passed. ";
   - name: Retrieve instance info, check public IP.
     js: |
       let res;
