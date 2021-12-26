@@ -246,7 +246,6 @@
 import CodeEditor from "../components/CodeEditor.vue";
 import TtBtn from "../components/TtBtn.vue";
 import WorkflowExecutor from "../components/WorkflowExecutor.vue";
-import { ipcRenderer } from "electron";
 import * as yaml from "js-yaml";
 
 export default {
@@ -308,11 +307,11 @@ export default {
       this.steps = result;
     },
     exportNewFile() {
-      ipcRenderer.send("choose-file", { title: "Save workflow" });
+      this.$ipc.send("choose-file", { title: "Save workflow" });
     },
     saveFile() {
       if (this.currentFilePath) {
-        ipcRenderer.send("save-file", {
+        this.$ipc.send("save-file", {
           filePath: this.currentFilePath,
           data: yaml.dump(this.computedWorkflow),
         });
@@ -329,7 +328,7 @@ export default {
     },
     fileChosen(event) {
       if (event.target.files.length > 0) {
-        ipcRenderer.send("open-workflow-yaml", {
+        this.$ipc.send("open-workflow-yaml", {
           filePath: event.target.files[0].path,
           fileName: event.target.files[0].name,
         });
@@ -354,7 +353,7 @@ export default {
     },
   },
   created() {
-    ipcRenderer.on("open-workflow-yaml", (event, arg) => {
+    this.$ipc.one("open-workflow-yaml", (event, arg) => {
       let content = yaml.load(arg.content);
       this.title = content.title;
       this.workflowData = [];
@@ -370,7 +369,7 @@ export default {
       this.currentFileName = arg.fileName;
     });
 
-    ipcRenderer.on("choose-file", (event, arg) => {
+    this.$ipc.one("choose-file", (event, arg) => {
       this.currentFilePath = arg.filePath;
       this.currentFileName = arg.fileName;
       this.saveFile();

@@ -50,7 +50,6 @@
 
 <script>
 import TtBtn from "../components/TtBtn.vue";
-import { ipcRenderer } from "electron";
 
 export default {
   components: { TtBtn },
@@ -60,18 +59,18 @@ export default {
     };
   },
   created() {
-    ipcRenderer.on("load-config", (event, arg) => {
+    this.$ipc.one("load-config", (event, arg) => {
       this.$store.commit("loadConfig", arg);
-      ipcRenderer.send("get-aws-credentials", {
+      this.$ipc.send("get-aws-credentials", {
         profile: this.$store.state.profile,
         region: this.$store.state.region,
       });
     });
-    ipcRenderer.on("get-aws-credentials", (event, arg) => {
+    this.$ipc.one("get-aws-credentials", (event, arg) => {
       this.$aws.configure({ ...arg, region: this.$store.state.region });
     });
 
-    ipcRenderer.send("load-config", this.$store.getters.defaultState);
+    this.$ipc.send("load-config", this.$store.getters.defaultState);
   },
 };
 </script>

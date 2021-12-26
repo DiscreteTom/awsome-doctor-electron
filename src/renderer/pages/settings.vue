@@ -18,8 +18,6 @@
 </template>
 
 <script>
-import { ipcRenderer } from "electron";
-
 export default {
   data() {
     return {
@@ -39,7 +37,7 @@ export default {
         profile: this.profile,
         region: this.region,
       });
-      ipcRenderer.send("get-aws-credentials", {
+      this.$ipc.send("get-aws-credentials", {
         profile: this.$store.state.profile,
         region: this.$store.state.region,
       });
