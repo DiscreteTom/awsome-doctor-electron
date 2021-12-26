@@ -3,6 +3,7 @@ data:
   dbIdentifier: ''
   securityGroupIds: []
   subnets: []
+  vpc: ''
 input:
   - label: DB Identifier
     placeholder: ''
@@ -33,6 +34,7 @@ steps:
           res,
           "$..Subnets[?(@.SubnetStatus=='Active')].SubnetIdentifier"
         );
+        $.data.vpc = $.jp.query(res, "$..VpcId")[0];
 
         if (!PubliclyAccessible) {
           $.err = `Database is not public accessible. Please modify your database to enable "Public access" `;
@@ -41,8 +43,74 @@ steps:
 
         $.ok = `Got database username: ${username}, port: ${port}, active security groups: ${$.data.securityGroupIds.join(
           ", "
-        )}, active subnets: ${$.data.subnets.join(", ")}. `;
+        )}, active subnets: ${$.data.subnets.join(", ")}, vpc: ${$.data.vpc} `;
       } catch (e) {
         $.err = e;
         return;
+      }
+  - name: Check subnets' route table.
+    js: |
+      let mainRouteTableId;
+      let mainRouteTableIgwCidr;
+      let routeTableIgwCidrMap = {};
+
+      for (let i = 0; i < $.data.subnets.length; ++i) {
+        let subnet = $.data.subnets[i];
+        let routeTableId;
+        let igwCidr;
+        try {
+          let res;
+          // find route table by subnet id
+          res = await $.aws.ec2.send(
+            new $.ec2.DescribeRouteTablesCommand({
+              Filters: [{ Name: "association.subnet-id", Values: [subnet] }],
+            })
+          );
+          if (res.RouteTables.length !== 0) {
+            // explicitly associated a route table
+            routeTableId = res.RouteTables[0].RouteTableId;
+            igwCidr = $.jp.query(
+              res,
+              "$..Routes[?(@.GatewayId.startsWith('igw-'))].DestinationCidrBlock"
+            );
+          } else {
+            // use VPC main route table
+            if (!mainRouteTableId) {
+              res = await $.aws.ec2.send(
+                new $.ec2.DescribeRouteTablesCommand({
+                  Filters: [{ Name: "vpc-id", Values: [$.data.vpc] }],
+                })
+              );
+              mainRouteTableId = $.jp.query(
+                res,
+                "$..Associations[?(@.Main)].RouteTableId"
+              );
+              mainRouteTableIgwCidr = $.jp.query(
+                res,
+                `$..RouteTables[?(@.RouteTableId=='${routeTableId}')].Routes[?(@.GatewayId.startsWith('igw-'))].DestinationCidrBlock`
+              );
+            }
+            routeTableId = mainRouteTableId;
+            igwCidr = mainRouteTableIgwCidr;
+          }
+        } catch (e) {
+          $.err = r;
+          return;
+        }
+        routeTableIgwCidrMap[routeTableId] = igwCidr;
+      }
+
+      let routeTableIds = Object.keys(routeTableIgwCidrMap);
+      for (let i = 0; i < routeTableIds.length; ++i) {
+        let igwCidr = routeTableIgwCidrMap[routeTableIds[i]];
+        if (igwCidr.length !== 0) {
+          if (igwCidr.indexOf("0.0.0.0/0") == -1) {
+            $.info += `Route table ${routeTableId} can access internet gateway when destination belongs to ${igwCidr.join(
+              ", "
+            )}. `;
+          }
+        } else {
+          // no igw route
+          $.err += `No route of the route table ${routeTableId} has Internet Gateway as target.`;
+        }
       }
