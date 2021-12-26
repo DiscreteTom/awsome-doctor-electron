@@ -29,7 +29,10 @@ steps:
           res,
           "$..VpcSecurityGroups[?(@.Status=='active')].VpcSecurityGroupId"
         );
-        $.data.subnets = $.jp.query(res, "$..SubnetIdentifier");
+        $.data.subnets = $.jp.query(
+          res,
+          "$..Subnets[?(@.SubnetStatus=='Active')].SubnetIdentifier"
+        );
 
         if (!PubliclyAccessible) {
           $.err = `Database is not public accessible. Please modify your database to enable "Public access" `;
@@ -38,7 +41,7 @@ steps:
 
         $.ok = `Got database username: ${username}, port: ${port}, active security groups: ${$.data.securityGroupIds.join(
           ", "
-        )}`;
+        )}, active subnets: ${$.data.subnets.join(", ")}. `;
       } catch (e) {
         $.err = e;
         return;
