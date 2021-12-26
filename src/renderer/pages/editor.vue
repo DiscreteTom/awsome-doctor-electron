@@ -55,7 +55,7 @@
             <v-col>
               <v-text-field
                 label="Rendered (YAML)"
-                :value="_eval(data.key, data.value)"
+                :value="renderYaml(data.key, data.value)"
                 hide-details
                 disabled
               />
@@ -336,7 +336,7 @@ export default {
         this.$refs.fileInput.value = null;
       }
     },
-    _eval(key, value) {
+    renderYaml(key, value) {
       try {
         let result = {};
         result[key] = yaml.load(value);
