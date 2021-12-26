@@ -147,3 +147,54 @@ steps:
           ", "
         )}. `;
       }
+  - name: Check route table.
+    js: |
+      let routeTableId;
+      let igwCidr;
+      try {
+        let res;
+        // find route table by subnet id
+        res = await $.aws.ec2.send(
+          new $.ec2.DescribeRouteTablesCommand({
+            Filters: [{ Name: "association.subnet-id", Values: [$.data.subnetId] }],
+          })
+        );
+        if (res.RouteTables.length !== 0) {
+          // explicitly associated a route table
+          routeTableId = res.RouteTables[0].RouteTableId;
+          igwCidr = $.jp.query(
+            res,
+            "$..Routes[?(@.GatewayId.startsWith('igw-'))].DestinationCidrBlock"
+          );
+        } else {
+          // use VPC main route table
+          res = await $.aws.ec2.send(
+            new $.ec2.DescribeRouteTablesCommand({
+              Filters: [{ Name: "vpc-id", Values: [$.data.vpcId] }],
+            })
+          );
+          routeTableId = $.jp.query(res, "$..Associations[?(@.Main)].RouteTableId");
+          igwCidr = $.jp.query(
+            res,
+            `$..RouteTables[?(@.RouteTableId=='${routeTableId}')].Routes[?(@.GatewayId.startsWith('igw-'))].DestinationCidrBlock`
+          );
+        }
+      } catch (e) {
+        $.err = r;
+        return;
+      }
+
+      if (igwCidr.length !== 0) {
+        if (igwCidr.indexOf("0.0.0.0/0") != -1) {
+          $.ok = `Route table ${routeTableId} can access internet gateway when destination belongs to 0.0.0.0/0.`;
+          return;
+        } else {
+          $.info += `Route table ${routeTableId} can access internet gateway when destination belongs to ${igwCidr.join(
+            ", "
+          )}. `;
+        }
+      } else {
+        // no igw route
+        $.err = `No route of the route table ${routeTableId} has Internet Gateway as target.`;
+        return;
+      }
