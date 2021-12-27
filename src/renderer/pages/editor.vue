@@ -143,6 +143,12 @@
                 @click="expand(i)"
                 top
               />
+              <tt-btn
+                tt="Format Code"
+                icon="mdi-code-json"
+                @click="formatCode(i)"
+                top
+              />
             </v-col>
           </v-row>
           <v-btn @click="addStep" class="mt-3">Add Step</v-btn>
@@ -219,7 +225,7 @@
           <tt-btn
             tt="Format Code"
             icon="mdi-code-json"
-            @click="formatCode"
+            @click="formatCode(editingIndex)"
             bottom
           />
           <tt-btn tt="Save" icon="mdi-check" @click="editorSave" bottom />
@@ -333,11 +339,10 @@ export default {
     editorSave() {
       this.fullscreenEdit = false;
     },
-    formatCode() {
-      this.steps[this.editingIndex].js = prettier.format(
-        this.steps[this.editingIndex].js,
-        { parser: "babel" }
-      );
+    formatCode(stepIndex) {
+      this.steps[stepIndex].js = prettier.format(this.steps[stepIndex].js, {
+        parser: "babel",
+      });
     },
     fileChosen(event) {
       if (event.target.files.length > 0) {
