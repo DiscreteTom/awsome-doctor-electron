@@ -136,6 +136,11 @@ export default {
       this.results = [];
     },
   },
+  mounted() {
+    this.$nextTick(() => {
+      this.reset(); // fill with default data
+    });
+  },
 };
 </script>
 
