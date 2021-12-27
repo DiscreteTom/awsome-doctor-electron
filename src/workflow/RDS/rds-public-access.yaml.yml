@@ -4,6 +4,7 @@ data:
   securityGroupIds: []
   subnets: []
   vpc: ''
+  port: 3306
 input:
   - label: DB Identifier
     placeholder: ''
@@ -21,11 +22,10 @@ steps:
           $.err = `Database ${$.data.dbIdentifier} not found. Please check the identifier, your AWS profile, and the selected region. `;
           return;
         }
-        $.data.db = res.DBInstances[0];
 
-        let port = $.jp.query(res, "$..Port")[0];
+        $.data.port = $.jp.query(res, "$..Port")[0];
         let username = $.jp.query(res, "$..MasterUsername")[0];
-        let PubliclyAccessible = $.jp.query(res, "$..PubliclyAccessible")[0];
+        let publiclyAccessible = $.jp.query(res, "$..PubliclyAccessible")[0];
         $.data.securityGroupIds = $.jp.query(
           res,
           "$..VpcSecurityGroups[?(@.Status=='active')].VpcSecurityGroupId"
@@ -36,12 +36,14 @@ steps:
         );
         $.data.vpc = $.jp.query(res, "$..VpcId")[0];
 
-        if (!PubliclyAccessible) {
+        if (!publiclyAccessible) {
           $.err = `Database is not public accessible. Please modify your database to enable "Public access" `;
           return;
         }
 
-        $.ok = `Got database username: ${username}, port: ${port}, active security groups: ${$.data.securityGroupIds.join(
+        $.ok = `Got database username: ${username}, port: ${
+          $.data.port
+        }, active security groups: ${$.data.securityGroupIds.join(
           ", "
         )}, active subnets: ${$.data.subnets.join(", ")}, vpc: ${$.data.vpc} `;
       } catch (e) {
@@ -87,7 +89,7 @@ steps:
               );
               mainRouteTableIgwCidr = $.jp.query(
                 res,
-                `$..RouteTables[?(@.RouteTableId=='${routeTableId}')].Routes[?(@.GatewayId.startsWith('igw-'))].DestinationCidrBlock`
+                `$..RouteTables[?(@.RouteTableId=='${mainRouteTableId}')].Routes[?(@.GatewayId.startsWith('igw-'))].DestinationCidrBlock`
               );
             }
             routeTableId = mainRouteTableId;
@@ -105,12 +107,64 @@ steps:
         let igwCidr = routeTableIgwCidrMap[routeTableIds[i]];
         if (igwCidr.length !== 0) {
           if (igwCidr.indexOf("0.0.0.0/0") == -1) {
-            $.info += `Route table ${routeTableId} can access internet gateway when destination belongs to ${igwCidr.join(
+            $.info += `Route table ${
+              routeTableIds[i]
+            } can access internet gateway when destination belongs to ${igwCidr.join(
               ", "
             )}. `;
           }
         } else {
           // no igw route
-          $.err += `No route of the route table ${routeTableId} has Internet Gateway as target.`;
+          $.err += `No route of the route table ${routeTableIds[i]} has Internet Gateway as target. `;
         }
+      }
+  - name: Check security groups' inbound rules.
+    js: |
+      let res;
+      try {
+        res = await $.aws.ec2.send(
+          new $.ec2.DescribeSecurityGroupsCommand({
+            GroupIds: $.data.securityGroupIds,
+          })
+        );
+      } catch (e) {
+        $.err = e;
+        return;
+      }
+
+      // check `all traffic`
+      let maybeAllowAll = false;
+      let anyTrafficCidr = $.jp.query(
+        res,
+        "$..IpPermissions[?(@.IpProtocol=='-1')]..CidrIp"
+      );
+      if (anyTrafficCidr.length !== 0) {
+        if (anyTrafficCidr.indexOf("0.0.0.0/0" != -1)) {
+          $.ok =
+            "The security group's inbound rules allow all traffic from 0.0.0.0/0.";
+          return;
+        } else {
+          // not sure if it's ok, need more information
+          $.info += `All traffic from those CIDRs are allowed to access this instance: ${anyTrafficCidr.join(
+            ", "
+          )}. `;
+          maybeAllowAll = true;
+        }
+      }
+
+      let pingCidr = $.jp.query(
+        res,
+        `$..IpPermissions[?(@.IpProtocol=='tcp' && (@.FromPort==${$.data.port} || @.FromPort==-1))]..CidrIp`
+      );
+      if (pingCidr.length === 0) {
+        if (!maybeAllowAll) {
+          $.err += `No IP is allowed to access this instance's port ${$.data.port}, please fix your security group inbound rules. `;
+        }
+      } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
+        $.ok = `The security group's inbound rules allow access from 0.0.0.0/0 at port ${$.data.port}`;
+      } else {
+        // not sure if it's ok, need more information
+        $.info += `Those CIDRs are allowed to access your instance's port ${
+          $.data.port
+        }: ${pingCidr.join(", ")}. `;
       }
