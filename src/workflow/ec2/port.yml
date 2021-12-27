@@ -137,54 +137,6 @@ steps:
           $.data.port
         } using ${$.data.protocol}: ${pingCidr.join(", ")}. `;
       }
-  - name: Check security group outbound rules.
-    js: |
-      let res;
-      try {
-        res = await $.aws.ec2.send(
-          new $.ec2.DescribeSecurityGroupsCommand({
-            GroupIds: $.data.securityGroupIds,
-          })
-        );
-      } catch (e) {
-        $.err = e;
-        return;
-      }
-
-      // check `all traffic`
-      let anyTrafficCidr = $.jp.query(
-        res,
-        "$..IpPermissionsEgress[?(@.IpProtocol=='-1')]..CidrIp"
-      );
-      let maybeAllowAll = false;
-      if (anyTrafficCidr.length !== 0) {
-        if (anyTrafficCidr.indexOf("0.0.0.0/0") != -1) {
-          $.ok =
-            "The security group's outbound rules allow all traffic to 0.0.0.0/0.";
-          return;
-        } else {
-          $.info += `All traffic to those CIDRs are allowed to access this instance: ${anyTrafficCidr.join(
-            ", "
-          )}. `;
-          maybeAllowAll = true;
-        }
-      }
-
-      let pingCidr = $.jp.query(
-        res,
-        `$..IpPermissionsEgress[?(@.IpProtocol=='${$.data.protocol}' && (@.FromPort==${$.data.port} || @.FromPort==-1))]..CidrIp`
-      );
-      if (pingCidr.length === 0) {
-        if (!maybeAllowAll) {
-          $.err = `No IP is allowed to access this instance at port ${$.data.port} using ${$.data.protocol}, please fix your security group outbound rules.`;
-        }
-      } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
-        $.ok += `The security group's outbound rules allow access to 0.0.0.0/0 at port ${$.data.port} using ${$.data.protocol}. `;
-      } else {
-        $.info += `Those CIDRs are allowed to access your instance at port ${
-          $.data.port
-        } using ${$.data.protocol}: ${pingCidr.join(", ")}. `;
-      }
   - name: Check route table.
     js: |
       let routeTableId;
