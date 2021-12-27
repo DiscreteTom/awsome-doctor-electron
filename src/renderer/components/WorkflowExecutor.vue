@@ -138,3 +138,9 @@ export default {
   },
 };
 </script>
+
+<style>
+code[class^="language-"] {
+  background-color: transparent !important;
+}
+</style>
