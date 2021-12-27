@@ -18,6 +18,7 @@ module.exports = {
     { src: "@/plugins/bus.js" },
     { src: "@/plugins/workflow.js" },
     { src: "@/plugins/ipc.js" },
+    { src: "@/plugins/md.js" },
   ],
   buildModules: [],
   modules: ["@nuxtjs/vuetify"],
