@@ -10,7 +10,7 @@ module.exports = {
     title: "awsome-doctor",
     meta: [{ charset: "utf-8" }],
   },
-  css: ["@/assets/github.css"],
+  css: ["@/assets/github.css", "@/assets/prism.css"],
   loading: false,
   plugins: [
     { ssr: true, src: "@/plugins/icons.js" },

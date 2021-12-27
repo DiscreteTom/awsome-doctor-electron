@@ -12,7 +12,7 @@ A desktop application that helps you to trouble shoot your AWS environment issue
 - YAML format workflow file.
   - You don't need to have web skills to create a new workflow.
 - Markdown format output.
-  - External links, titles, styled fonts, etc.
+  - External links, titles, styled fonts, codes, etc.
 - Built-in responsive workflow editor.
   - Code format.
   - Syntax highlight.

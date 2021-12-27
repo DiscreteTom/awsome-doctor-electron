@@ -46,6 +46,7 @@
     "jsonpath": "^1.1.1",
     "marked": "^4.0.8",
     "prettier": "^2.5.1",
+    "prismjs": "^1.25.0",
     "vue2-ace-editor": "^0.0.15"
   }
 }
