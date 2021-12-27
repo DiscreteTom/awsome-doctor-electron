@@ -7,7 +7,7 @@ module.exports = {
   ssr: false,
   target: "static",
   head: {
-    title: "awsome-doctor",
+    title: "Awsome Doctor",
     meta: [{ charset: "utf-8" }],
   },
   css: ["@/assets/github.css", "@/assets/prism.css"],
