@@ -49,7 +49,14 @@
           "
         >
           <v-progress-circular indeterminate v-if="result.pending" />
-          <span v-else>{{ result.err || result.info || result.ok }}</span>
+          <div v-else>
+            <div
+              v-if="result.markdown"
+              v-html="result.err || result.info || result.ok"
+              class="markdown-body"
+            ></div>
+            <div v-else>{{ result.err || result.info || result.ok }}</div>
+          </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -60,6 +67,7 @@
 import * as ec2 from "@aws-sdk/client-ec2";
 import * as rds from "@aws-sdk/client-rds";
 import jp from "jsonpath";
+import { marked } from "marked";
 
 export default {
   props: {
@@ -103,9 +111,21 @@ export default {
         }
         // update result
         this.results[i].pending = false;
+        this.results[i].markdown = false;
         this.results[i].err = $.err;
         this.results[i].info = $.info;
         this.results[i].ok = $.ok;
+        if (typeof $.err == "string" && $.err.length !== 0) {
+          this.results[i].err = marked.parse($.err);
+          this.results[i].markdown = true;
+        } else if (typeof $.info == "string" && $.info.length !== 0) {
+          this.results[i].info = marked.parse($.info);
+          this.results[i].markdown = true;
+        } else if (typeof $.ok == "string" && $.ok.length !== 0) {
+          this.results[i].ok = marked.parse($.ok);
+          this.results[i].markdown = true;
+        }
+
         if ($.err) break;
       }
     },
