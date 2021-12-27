@@ -216,6 +216,12 @@
             @click="changeEditorFontSize(2)"
             bottom
           />
+          <tt-btn
+            tt="Format Code"
+            icon="mdi-code-json"
+            @click="formatCode"
+            bottom
+          />
           <tt-btn tt="Save" icon="mdi-check" @click="editorSave" bottom />
           <v-toolbar-items>
             <!-- <v-btn dark text @click="dialog = false"> Save </v-btn> -->
@@ -247,6 +253,7 @@ import CodeEditor from "../components/CodeEditor.vue";
 import TtBtn from "../components/TtBtn.vue";
 import WorkflowExecutor from "../components/WorkflowExecutor.vue";
 import * as yaml from "js-yaml";
+import * as prettier from "prettier";
 
 export default {
   components: { TtBtn, CodeEditor, WorkflowExecutor },
@@ -325,6 +332,12 @@ export default {
     },
     editorSave() {
       this.fullscreenEdit = false;
+    },
+    formatCode() {
+      this.steps[this.editingIndex].js = prettier.format(
+        this.steps[this.editingIndex].js,
+        { parser: "babel" }
+      );
     },
     fileChosen(event) {
       if (event.target.files.length > 0) {
