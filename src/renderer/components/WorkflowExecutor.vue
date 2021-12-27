@@ -70,6 +70,11 @@ import * as rds from "@aws-sdk/client-rds";
 import jp from "jsonpath";
 import { marked } from "marked";
 
+const renderer = new marked.Renderer();
+renderer.link = (href, title, text) =>
+  `<a target="_blank" href="${href}" title="${title}">${text}</a>`;
+marked.setOptions({ renderer });
+
 export default {
   props: {
     workflow: Object,
