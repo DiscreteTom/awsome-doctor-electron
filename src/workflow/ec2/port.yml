@@ -123,19 +123,19 @@ steps:
 
       let pingCidr = $.jp.query(
         res,
-        `$..IpPermissions[?(@.IpProtocol=='tcp' && (@.FromPort==${$.data.port} || @.FromPort==-1))]..CidrIp`
+        `$..IpPermissions[?(@.IpProtocol=='${$.data.protocol}' && (@.FromPort==${$.data.port} || @.FromPort==-1))]..CidrIp`
       );
       if (pingCidr.length === 0) {
         if (!maybeAllowAll) {
-          $.err += `No IP is allowed to access this instance's port ${$.data.port}, please fix your security group inbound rules. `;
+          $.err += `No IP is allowed to access this instance's port ${$.data.port} using ${$.data.protocol}, please fix your security group inbound rules. `;
         }
       } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
-        $.ok = `The security group's inbound rules allow access from 0.0.0.0/0 at port ${$.data.port}`;
+        $.ok = `The security group's inbound rules allow access from 0.0.0.0/0 at port ${$.data.port} using ${$.data.protocol}. `;
       } else {
         // not sure if it's ok, need more information
         $.info += `Those CIDRs are allowed to access your instance's port ${
           $.data.port
-        }: ${pingCidr.join(", ")}. `;
+        } using ${$.data.protocol}: ${pingCidr.join(", ")}. `;
       }
   - name: Check security group outbound rules.
     js: |
@@ -172,18 +172,18 @@ steps:
 
       let pingCidr = $.jp.query(
         res,
-        `$..IpPermissionsEgress[?(@.IpProtocol=='tcp' && (@.FromPort==${$.data.port} || @.FromPort==-1))]..CidrIp`
+        `$..IpPermissionsEgress[?(@.IpProtocol=='${$.data.protocol}' && (@.FromPort==${$.data.port} || @.FromPort==-1))]..CidrIp`
       );
       if (pingCidr.length === 0) {
         if (!maybeAllowAll) {
-          $.err = `No IP is allowed to access this instance at port ${$.data.port}, please fix your security group outbound rules.`;
+          $.err = `No IP is allowed to access this instance at port ${$.data.port} using ${$.data.protocol}, please fix your security group outbound rules.`;
         }
       } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
-        $.ok += `The security group's outbound rules allow access to 0.0.0.0/0 at port ${$.data.port}. `;
+        $.ok += `The security group's outbound rules allow access to 0.0.0.0/0 at port ${$.data.port} using ${$.data.protocol}. `;
       } else {
         $.info += `Those CIDRs are allowed to access your instance at port ${
           $.data.port
-        }: ${pingCidr.join(", ")}. `;
+        } using ${$.data.protocol}: ${pingCidr.join(", ")}. `;
       }
   - name: Check route table.
     js: |
