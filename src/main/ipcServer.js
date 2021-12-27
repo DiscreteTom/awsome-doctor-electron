@@ -55,7 +55,7 @@ ipcMain.on("choose-file", async (event, arg) => {
 
   if (!result.canceled) {
     let filePath = result.filePath;
-    if (!filePath.endsWith(".yml") && filePath.endsWith(".yaml"))
+    if (!filePath.endsWith(".yml") && !filePath.endsWith(".yaml"))
       filePath += ".yml";
     event.reply("choose-file", {
       filePath,
