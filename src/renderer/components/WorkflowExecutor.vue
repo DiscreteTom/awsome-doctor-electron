@@ -54,6 +54,7 @@
               v-if="result.markdown"
               v-html="result.err || result.info || result.ok"
               class="markdown-body"
+              style="background: white; padding: 10px"
             ></div>
             <div v-else>{{ result.err || result.info || result.ok }}</div>
           </div>
@@ -115,14 +116,15 @@ export default {
         this.results[i].err = $.err;
         this.results[i].info = $.info;
         this.results[i].ok = $.ok;
-        if (typeof $.err == "string" && $.err.length !== 0) {
-          this.results[i].err = marked.parse($.err);
+        const mdPrefix = "/md\n";
+        if (typeof $.err == "string" && $.err.startsWith(mdPrefix)) {
+          this.results[i].err = marked.parse($.err.slice(mdPrefix.length));
           this.results[i].markdown = true;
-        } else if (typeof $.info == "string" && $.info.length !== 0) {
-          this.results[i].info = marked.parse($.info);
+        } else if (typeof $.info == "string" && $.info.startsWith(mdPrefix)) {
+          this.results[i].info = marked.parse($.info.slice(mdPrefix.length));
           this.results[i].markdown = true;
-        } else if (typeof $.ok == "string" && $.ok.length !== 0) {
-          this.results[i].ok = marked.parse($.ok);
+        } else if (typeof $.ok == "string" && $.ok.startsWith(mdPrefix)) {
+          this.results[i].ok = marked.parse($.ok.slice(mdPrefix.length));
           this.results[i].markdown = true;
         }
 
