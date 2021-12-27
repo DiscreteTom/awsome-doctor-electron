@@ -1,10 +1,25 @@
-# awsome-doctor
+# Awsome Doctor
 
-> An electron-nuxt project
+> Powered by [electron-nuxt](https://github.com/michalzaq12/electron-nuxt).
 
-#### Build Setup
+A desktop application that helps you to trouble shoot your AWS environment issues.
 
-``` bash
+## Features
+
+- Use local AWS credentials.
+  - Profile files in `~/.aws/`
+  - Environment variables.
+- YAML format workflow file.
+  - You don't need to have web skills to create a new workflow.
+- Markdown format output.
+  - External links, titles, styled fonts, etc.
+- Built-in responsive workflow editor.
+  - Code format.
+  - Syntax highlight.
+
+## Build Setup
+
+```bash
 # install dependencies
 yarn install
 
@@ -13,9 +28,4 @@ yarn dev
 
 # build electron application for production
 yarn build
-
 ```
-
----
-
-This project was generated with [electron-nuxt](https://github.com/michalzaq12/electron-nuxt) v1.8.0 using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://github.com/michalzaq12/electron-nuxt/blob/master/README.md).
