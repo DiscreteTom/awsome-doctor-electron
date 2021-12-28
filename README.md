@@ -17,6 +17,7 @@ A desktop application that helps you to trouble shoot your AWS environment issue
 - Built-in responsive workflow editor.
   - Code format.
   - Syntax highlight.
+- Custom HTTP request powered by axios.
 
 ## Build Setup
 
@@ -106,6 +107,9 @@ let $ = {
   // Json path, see https://github.com/dchester/jsonpath
   jp,
 
+  // HTTP client, see https://github.com/axios/axios
+  axios,
+
   // output
   err: "",
   info: "",
@@ -127,6 +131,9 @@ Examples:
 let res = await $.aws.ec2.describeInstanceStatus({
   InstanceIds: [$.data.instanceId],
 });
+
+// http request
+let res = await $.axios.get("https://examples.com");
 
 // using json path
 let publicIps = $.jp.query(res, "$..PrivateIpAddresses..PublicIp");

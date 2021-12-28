@@ -93,6 +93,7 @@ export default {
         let $ = {
           aws: this.$aws,
           data: this.workflowData,
+          axios: this.$axios,
           jp,
           err: "",
           ok: "",

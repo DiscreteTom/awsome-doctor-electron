@@ -21,7 +21,7 @@ module.exports = {
     { src: "@/plugins/md.js" },
   ],
   buildModules: [],
-  modules: ["@nuxtjs/vuetify"],
+  modules: ["@nuxtjs/vuetify", "@nuxtjs/axios"],
   vuetify: {
     theme: {
       themes: {
