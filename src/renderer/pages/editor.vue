@@ -213,13 +213,13 @@
           <tt-btn
             tt="Decrease Font Size"
             icon="mdi-format-font-size-decrease"
-            @click="changeEditorFontSize(-2)"
+            @click="changeEditorFontSize(-1)"
             bottom
           />
           <tt-btn
             tt="Increase Font Size"
             icon="mdi-format-font-size-increase"
-            @click="changeEditorFontSize(2)"
+            @click="changeEditorFontSize(1)"
             bottom
           />
           <tt-btn

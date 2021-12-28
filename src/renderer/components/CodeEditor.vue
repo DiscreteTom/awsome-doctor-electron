@@ -37,7 +37,6 @@ export default {
         editor.setOption("scrollPastEnd", this.scrollPastEnd);
       }
       editor.setOptions({
-        fontSize: "10pt",
         showInvisibles: this.showInvisibles,
       });
       editor.session.setOptions({

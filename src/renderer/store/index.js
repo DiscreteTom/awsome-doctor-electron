@@ -11,7 +11,7 @@ const defaultConfig = {
   useProfile: true,
   tempAk: "",
   tempSk: "",
-  editorFontSize: 12,
+  editorFontSize: 10,
   editorDarkMode: true,
   editorShowInvisibles: true,
 };
