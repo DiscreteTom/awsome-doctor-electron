@@ -1,10 +1,28 @@
 <template>
   <div>
     <div class="d-flex align-center">
-      <v-btn @click="exportNewFile"> Export to YAML </v-btn>
-      <v-btn @click="$refs.fileInput.click()" class="ml-3">
-        Load from YAML
-      </v-btn>
+      <tt-btn
+        top
+        @click="exportNewFile"
+        tt="Export New YAML File"
+        icon="mdi-content-save-outline"
+      />
+      <tt-btn
+        top
+        @click="$refs.fileInput.click()"
+        class="ml-3"
+        tt="Load From YAML File"
+        icon="mdi-folder-open-outline"
+      />
+      <tt-btn
+        top
+        @click="$refs.fileInput.click()"
+        class="ml-3"
+        tt="Open From URL"
+        icon="mdi-file-import-outline"
+      />
+
+      <v-divider vertical />
 
       <span style="font-weight: bold" class="mx-3"> File: </span>
       <v-tooltip bottom v-if="currentFileName">
@@ -15,6 +33,9 @@
       </v-tooltip>
       <span v-else> Untitled </span>
     </div>
+
+    <v-divider />
+
     <div class="d-flex align-center mt-3">
       <h2>Editing workflow:</h2>
       <!-- title -->
