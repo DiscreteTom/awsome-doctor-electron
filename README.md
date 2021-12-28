@@ -161,4 +161,6 @@ let a = 1;
 console.log(123);
 \`\`\`
 `;
+
+$.ok = "/md\nInline **markdown**.";
 ```
