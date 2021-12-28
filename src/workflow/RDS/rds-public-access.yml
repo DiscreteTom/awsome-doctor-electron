@@ -10,7 +10,7 @@ input:
     placeholder: ''
     store: dbIdentifier
 steps:
-  - name: Retrieve database instance info.
+  - name: Retrieve database instance info & public accessibility.
     js: |
       try {
         let res = await $.aws.rds.describeDBInstances({
