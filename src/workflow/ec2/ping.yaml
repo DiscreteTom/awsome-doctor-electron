@@ -12,11 +12,9 @@ steps:
   - name: Instance status check.
     js: |
       try {
-        let res = await $.aws.ec2.send(
-          new $.ec2.DescribeInstanceStatusCommand({
-            InstanceIds: [$.data.instanceId],
-          })
-        );
+        let res = await $.aws.ec2.describeInstanceStatus({
+          InstanceIds: [$.data.instanceId],
+        });
 
         if (res.InstanceStatuses[0].InstanceState.Name != "running") {
           $.err = `Instance is not running. Instance state: ${res.InstanceStatuses[0].InstanceState.Name}. `;
@@ -38,9 +36,7 @@ steps:
     js: |
       let res;
       try {
-        res = await $.aws.ec2.send(
-          new $.ec2.DescribeInstancesCommand({ InstanceIds: [$.data.instanceId] })
-        );
+        res = await $.aws.ec2.describeInstances({ InstanceIds: [$.data.instanceId] });
       } catch (e) {
         $.err = e;
         return;
@@ -69,14 +65,12 @@ steps:
         $.err += "Failed to retrieve VPC id and subnet id. ";
       }
   - name: Check security group inbound rules.
-    js: |-
+    js: |
       let res;
       try {
-        res = await $.aws.ec2.send(
-          new $.ec2.DescribeSecurityGroupsCommand({
-            GroupIds: $.data.securityGroupIds,
-          })
-        );
+        res = await $.aws.ec2.describeSecurityGroups({
+          GroupIds: $.data.securityGroupIds,
+        });
       } catch (e) {
         $.err = e;
         return;
@@ -128,11 +122,9 @@ steps:
       try {
         let res;
         // find route table by subnet id
-        res = await $.aws.ec2.send(
-          new $.ec2.DescribeRouteTablesCommand({
-            Filters: [{ Name: "association.subnet-id", Values: [$.data.subnetId] }],
-          })
-        );
+        res = await $.aws.ec2.describeRouteTables({
+          Filters: [{ Name: "association.subnet-id", Values: [$.data.subnetId] }],
+        });
         if (res.RouteTables.length !== 0) {
           // explicitly associated a route table
           routeTableId = res.RouteTables[0].RouteTableId;
@@ -142,11 +134,9 @@ steps:
           );
         } else {
           // use VPC main route table
-          res = await $.aws.ec2.send(
-            new $.ec2.DescribeRouteTablesCommand({
-              Filters: [{ Name: "vpc-id", Values: [$.data.vpcId] }],
-            })
-          );
+          res = await $.aws.ec2.describeRouteTables({
+            Filters: [{ Name: "vpc-id", Values: [$.data.vpcId] }],
+          });
           routeTableId = $.jp.query(res, "$..Associations[?(@.Main)].RouteTableId");
           igwCidr = $.jp.query(
             res,
@@ -177,11 +167,9 @@ steps:
       let inboundRules = [];
       let outboundRules = [];
       try {
-        let res = await $.aws.ec2.send(
-          new $.ec2.DescribeNetworkAclsCommand({
-            Filters: [{ Name: "association.subnet-id", Values: [$.data.subnetId] }],
-          })
-        );
+        let res = await $.aws.ec2.describeNetworkAcls({
+          Filters: [{ Name: "association.subnet-id", Values: [$.data.subnetId] }],
+        });
         inboundRules = $.jp.query(res, "$..Entries[?(!@.Egress)]");
         outboundRules = $.jp.query(res, "$..Entries[?(@.Egress)]");
       } catch (e) {
