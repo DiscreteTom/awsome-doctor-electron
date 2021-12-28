@@ -16,7 +16,7 @@
       />
       <tt-btn
         top
-        @click="$refs.fileInput.click()"
+        @click="openUrlDialog = true"
         class="ml-3"
         tt="Open From URL"
         icon="mdi-file-import-outline"
@@ -272,6 +272,33 @@
       style="display: none"
       @input="fileChosen"
     />
+
+    <v-dialog v-model="openUrlDialog">
+      <v-card>
+        <v-card-title>Open from URL</v-card-title>
+        <v-card-subtitle style="color: red"
+          >External workflows might be dangerous.</v-card-subtitle
+        >
+        <v-card-text>
+          <v-text-field
+            v-model="externalUrl"
+            label="URL"
+            placeholder="https://example.com"
+          />
+          <v-alert v-if="openUrlDialogErr !== null" type="error">
+            {{ openUrlDialogErr }}
+          </v-alert>
+          <v-btn
+            @click="openExternalUrl"
+            color="primary"
+            :loading="openingExternalUrl"
+          >
+            Open
+          </v-btn>
+          <v-btn @click="openUrlDialog = false" class="mx-3"> Close </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -296,9 +323,31 @@ export default {
       editorShowInvisible: true,
       currentFilePath: null,
       currentFileName: null,
+      openUrlDialog: false,
+      externalUrl: "",
+      openUrlDialogErr: null,
+      openingExternalUrl: false,
     };
   },
   methods: {
+    openExternalUrl() {
+      this.openUrlDialogErr = null;
+      this.openingExternalUrl = true;
+      this.$axios
+        .get(this.externalUrl)
+        .then((res) => {
+          this.applyYaml(res.data);
+          this.currentFilePath = null;
+          this.currentFileName = null;
+          this.openUrlDialog = false;
+          this.externalUrl = "";
+          this.openingExternalUrl = false;
+        })
+        .catch((e) => {
+          this.openUrlDialogErr = e;
+          this.openingExternalUrl = false;
+        });
+    },
     changeEditorFontSize(n) {
       this.$store.commit("updateConfig", {
         editorFontSize: this.$store.state.editorFontSize + n,
@@ -398,10 +447,8 @@ export default {
         this.saveFile();
       }
     },
-  },
-  created() {
-    this.$ipc.one("open-workflow-yaml", (event, arg) => {
-      let content = yaml.load(arg.content);
+    applyYaml(txt) {
+      let content = yaml.load(txt);
       this.title = content.title;
       this.workflowData = [];
       for (let key in content.data) {
@@ -412,6 +459,11 @@ export default {
       }
       this.inputs = content.input;
       this.steps = content.steps;
+    },
+  },
+  created() {
+    this.$ipc.one("open-workflow-yaml", (event, arg) => {
+      this.applyYaml(arg.content);
       this.currentFilePath = arg.filePath;
       this.currentFileName = arg.fileName;
     });
