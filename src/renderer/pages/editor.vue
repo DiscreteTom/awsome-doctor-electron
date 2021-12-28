@@ -21,6 +21,13 @@
         tt="Open From URL"
         icon="mdi-file-import-outline"
       />
+      <tt-btn
+        top
+        @click="reset"
+        class="ml-3"
+        tt="Reset Editor"
+        icon="mdi-delete-outline"
+      />
 
       <v-divider vertical />
 
@@ -309,27 +316,35 @@ import WorkflowExecutor from "../components/WorkflowExecutor.vue";
 import * as yaml from "js-yaml";
 import * as prettier from "prettier";
 
+const defaultData = {
+  title: "",
+  workflowData: [],
+  inputs: [],
+  steps: [],
+  fullscreenEdit: false,
+  editingIndex: 0,
+  editorDark: true,
+  editorShowInvisible: true,
+  currentFilePath: null,
+  currentFileName: null,
+  openUrlDialog: false,
+  externalUrl: "",
+  openUrlDialogErr: null,
+  openingExternalUrl: false,
+};
+
 export default {
   components: { TtBtn, CodeEditor, WorkflowExecutor },
   data() {
-    return {
-      title: "",
-      workflowData: [],
-      inputs: [],
-      steps: [],
-      fullscreenEdit: false,
-      editingIndex: 0,
-      editorDark: true,
-      editorShowInvisible: true,
-      currentFilePath: null,
-      currentFileName: null,
-      openUrlDialog: false,
-      externalUrl: "",
-      openUrlDialogErr: null,
-      openingExternalUrl: false,
-    };
+    return JSON.parse(JSON.stringify(defaultData)); // copy
   },
   methods: {
+    reset() {
+      let data = JSON.parse(JSON.stringify(defaultData)); // copy
+      for (let key in data) {
+        this[key] = data[key];
+      }
+    },
     openExternalUrl() {
       this.openUrlDialogErr = null;
       this.openingExternalUrl = true;
