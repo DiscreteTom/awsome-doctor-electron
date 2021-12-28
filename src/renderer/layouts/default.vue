@@ -70,7 +70,9 @@ export default {
       this.$aws.configure({ ...arg, region: this.$store.state.region });
     });
 
-    this.$ipc.send("load-config", this.$store.getters.defaultState);
+    let { tempAk, tempSk, useProfile, ...rest } =
+      this.$store.getters.defaultState;
+    this.$ipc.send("load-config", rest);
   },
 };
 </script>

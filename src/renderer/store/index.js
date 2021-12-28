@@ -11,11 +11,14 @@ const defaultConfig = {
   useProfile: true,
   tempAk: "",
   tempSk: "",
+  editorFontSize: 12,
+  editorDarkMode: true,
+  editorShowInvisibles: true,
 };
 
 export default {
   state() {
-    return { ...defaultConfig };
+    return JSON.parse(JSON.stringify(defaultConfig)); // copy
   },
   mutations: {
     /**
@@ -24,7 +27,7 @@ export default {
     loadConfig(state, config) {
       // load config
       for (let key in state) {
-        if (config[key]) {
+        if (config[key] !== null && config[key] !== undefined) {
           state[key] = config[key];
         }
       }
@@ -34,7 +37,7 @@ export default {
      */
     updateConfig(state, config) {
       for (let key in state) {
-        if (config[key] !== null) {
+        if (config[key] !== null && config[key] !== undefined) {
           state[key] = config[key];
         }
       }

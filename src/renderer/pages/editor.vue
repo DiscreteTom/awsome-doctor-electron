@@ -234,7 +234,7 @@
           </v-toolbar-items>
         </v-toolbar>
         <code-editor
-          ref="codeEditor"
+          ref="fullScreenCodeEditor"
           class="flex-grow-1"
           :scrollPastEnd="1"
           :dark="editorDark"
@@ -272,7 +272,6 @@ export default {
       fullscreenEdit: false,
       editingIndex: 0,
       editorDark: true,
-      editorFontSize: 10,
       editorShowInvisible: true,
       currentFilePath: null,
       currentFileName: null,
@@ -280,8 +279,12 @@ export default {
   },
   methods: {
     changeEditorFontSize(n) {
-      this.editorFontSize += n;
-      this.$refs.codeEditor.setFontSize(this.editorFontSize);
+      this.$store.commit("updateConfig", {
+        editorFontSize: this.$store.state.editorFontSize + n,
+      });
+      this.$refs.fullScreenCodeEditor.setFontSize(
+        this.$store.state.editorFontSize
+      );
     },
     addData() {
       this.workflowData.push({ key: "", value: "" });
@@ -335,6 +338,11 @@ export default {
     expand(i) {
       this.editingIndex = i;
       this.fullscreenEdit = true;
+      this.$nextTick(() => {
+        this.$refs.fullScreenCodeEditor.setFontSize(
+          this.$store.state.editorFontSize
+        );
+      });
     },
     editorSave() {
       this.fullscreenEdit = false;
@@ -413,10 +421,19 @@ export default {
   },
   mounted() {
     document.addEventListener("keydown", this.handleKeyDown);
+    this.editorDark = this.$store.state.editorDarkMode;
+    this.editorShowInvisible = this.$store.state.editorShowInvisibles;
   },
-
   beforeDestroy() {
     document.removeEventListener("keydown", this.handleKeyDown);
+  },
+  watch: {
+    editorDark(val) {
+      this.$store.commit("updateConfig", { editorDarkMode: val });
+    },
+    editorShowInvisible(val) {
+      this.$store.commit("updateConfig", { editorShowInvisibles: val });
+    },
   },
 };
 </script>
