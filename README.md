@@ -77,7 +77,7 @@ Which means you can use `return` to stop running, and use `await` inside the cod
 let res;
 try {
   // call async function
-  res = await $.aws.ec2.send(/* ... */);
+  res = await $.aws.ec2.describeInstanceStatus({});
 } catch (e) {
   $.err = e;
   // stop running
@@ -124,11 +124,9 @@ Examples:
 
 ```js
 // call AWS
-let res = await $.aws.ec2.send(
-  new $.ec2.DescribeInstanceStatusCommand({
-    InstanceIds: [$.data.instanceId],
-  })
-);
+let res = await $.aws.ec2.describeInstanceStatus({
+  InstanceIds: [$.data.instanceId],
+});
 
 // using json path
 let publicIps = $.jp.query(res, "$..PrivateIpAddresses..PublicIp");

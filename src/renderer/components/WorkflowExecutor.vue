@@ -65,8 +65,6 @@
 </template>
 
 <script>
-import * as ec2 from "@aws-sdk/client-ec2";
-import * as rds from "@aws-sdk/client-rds";
 import jp from "jsonpath";
 
 export default {
@@ -96,8 +94,6 @@ export default {
           aws: this.$aws,
           data: this.workflowData,
           jp,
-          ec2,
-          rds,
           err: "",
           ok: "",
           info: "",

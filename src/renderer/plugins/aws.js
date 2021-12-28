@@ -1,5 +1,5 @@
-import { EC2Client } from "@aws-sdk/client-ec2";
-import { RDSClient } from "@aws-sdk/client-rds";
+import { EC2 } from "@aws-sdk/client-ec2";
+import { RDS } from "@aws-sdk/client-rds";
 
 let aws = {};
 
@@ -11,8 +11,8 @@ function configure({ accessKeyId, secretAccessKey, region }) {
     },
     region,
   };
-  aws["ec2"] = new EC2Client(config);
-  aws["rds"] = new RDSClient(config);
+  aws["ec2"] = new EC2(config);
+  aws["rds"] = new RDS(config);
 }
 
 aws["configure"] = configure;

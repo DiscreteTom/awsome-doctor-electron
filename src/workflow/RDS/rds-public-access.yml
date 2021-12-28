@@ -13,11 +13,9 @@ steps:
   - name: Retrieve database instance info.
     js: |
       try {
-        let res = await $.aws.rds.send(
-          new $.rds.DescribeDBInstancesCommand({
-            DBInstanceIdentifier: $.data.dbIdentifier,
-          })
-        );
+        let res = await $.aws.rds.describeDBInstances({
+          DBInstanceIdentifier: $.data.dbIdentifier,
+        });
         if (res.DBInstances.length === 0) {
           $.err = `Database ${$.data.dbIdentifier} not found. Please check the identifier, your AWS profile, and the selected region. `;
           return;
@@ -63,11 +61,9 @@ steps:
         try {
           let res;
           // find route table by subnet id
-          res = await $.aws.ec2.send(
-            new $.ec2.DescribeRouteTablesCommand({
-              Filters: [{ Name: "association.subnet-id", Values: [subnet] }],
-            })
-          );
+          res = await $.aws.ec2.describeRouteTables({
+            Filters: [{ Name: "association.subnet-id", Values: [subnet] }],
+          });
           if (res.RouteTables.length !== 0) {
             // explicitly associated a route table
             routeTableId = res.RouteTables[0].RouteTableId;
@@ -78,11 +74,9 @@ steps:
           } else {
             // use VPC main route table
             if (!mainRouteTableId) {
-              res = await $.aws.ec2.send(
-                new $.ec2.DescribeRouteTablesCommand({
-                  Filters: [{ Name: "vpc-id", Values: [$.data.vpc] }],
-                })
-              );
+              res = await $.aws.ec2.describeRouteTables({
+                Filters: [{ Name: "vpc-id", Values: [$.data.vpc] }],
+              });
               mainRouteTableId = $.jp.query(
                 res,
                 "$..Associations[?(@.Main)].RouteTableId"
@@ -122,11 +116,9 @@ steps:
     js: |
       let res;
       try {
-        res = await $.aws.ec2.send(
-          new $.ec2.DescribeSecurityGroupsCommand({
-            GroupIds: $.data.securityGroupIds,
-          })
-        );
+        res = await $.aws.ec2.describeSecurityGroups({
+          GroupIds: $.data.securityGroupIds,
+        });
       } catch (e) {
         $.err = e;
         return;
@@ -176,11 +168,9 @@ steps:
       for (let i = 0; i < $.data.subnets.length; ++i) {
         let subnet = $.data.subnets[i];
         try {
-          let res = await $.aws.ec2.send(
-            new $.ec2.DescribeNetworkAclsCommand({
-              Filters: [{ Name: "association.subnet-id", Values: [subnet] }],
-            })
-          );
+          let res = await $.aws.ec2.describeNetworkAcls({
+            Filters: [{ Name: "association.subnet-id", Values: [subnet] }],
+          });
           inboundRules = $.jp.query(res, "$..Entries[?(!@.Egress)]");
           outboundRules = $.jp.query(res, "$..Entries[?(@.Egress)]");
         } catch (e) {
