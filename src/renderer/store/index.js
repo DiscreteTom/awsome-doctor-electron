@@ -1,12 +1,16 @@
 import { ipcRenderer } from "electron";
 
 function persistConfig(state) {
-  ipcRenderer.send("update-config", state);
+  let { tempAk, tempSk, useProfile, ...rest } = state;
+  ipcRenderer.send("update-config", rest);
 }
 
 const defaultConfig = {
   region: "us-east-1",
   profile: "default",
+  useProfile: true,
+  tempAk: "",
+  tempSk: "",
 };
 
 export default {
@@ -30,7 +34,7 @@ export default {
      */
     updateConfig(state, config) {
       for (let key in state) {
-        if (config[key]) {
+        if (config[key] !== null) {
           state[key] = config[key];
         }
       }
