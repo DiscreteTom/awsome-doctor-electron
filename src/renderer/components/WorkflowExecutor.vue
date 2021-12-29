@@ -66,6 +66,7 @@
 
 <script>
 import jp from "jsonpath";
+import * as yaml from "js-yaml";
 
 export default {
   props: {
@@ -95,6 +96,7 @@ export default {
           data: this.workflowData,
           axios: this.$axios,
           jp,
+          yaml,
           err: "",
           ok: "",
           info: "",

@@ -107,6 +107,9 @@ let $ = {
   // Json path, see https://github.com/dchester/jsonpath
   jp,
 
+  // js-yaml, see https://github.com/nodeca/js-yaml
+  yaml,
+
   // HTTP client, see https://github.com/axios/axios
   axios,
 
@@ -134,6 +137,9 @@ let res = await $.aws.ec2.describeInstanceStatus({
 
 // http request
 let res = await $.axios.get("https://examples.com");
+
+// dump object as YAML
+$.yaml.dump(res);
 
 // using json path
 let publicIps = $.jp.query(res, "$..PrivateIpAddresses..PublicIp");
