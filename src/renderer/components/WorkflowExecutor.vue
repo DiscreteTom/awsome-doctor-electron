@@ -100,6 +100,7 @@ export default {
           err: "",
           ok: "",
           info: "",
+          utils: this.$workflowUtils,
         };
         try {
           await eval(`(async ()=>{${step.js}})()`);
