@@ -18,6 +18,7 @@ A desktop application that helps you to trouble shoot your AWS environment issue
   - Code format.
   - Syntax highlight.
 - Custom HTTP request powered by axios.
+- Modularization.
 
 ## Build Setup
 
@@ -118,10 +119,8 @@ let $ = {
   info: "",
   ok: "",
 
-  // AWS JavaScript SDK v3
-  ... {
-    ec2,
-    rds,
+  // util functions in `src/workflow-utils/` folder
+  utils: {
     ...
   }
 };
@@ -148,6 +147,15 @@ let publicIps = $.jp.query(res, "$..PrivateIpAddresses..PublicIp");
 $.err += "error";
 $.info += "info";
 $.ok += "ok";
+
+// use util functions
+await $.utils.securityGroup.checkEC2Instances({
+  $,
+  instanceIds: ['i-1234567890']
+  direction: "in",
+  protocol: "tcp",
+  port: 22,
+});
 ```
 
 ### Output
@@ -174,4 +182,26 @@ console.log(123);
 `;
 
 $.ok = "/md\nInline **markdown**.";
+```
+
+### Modularization
+
+There are some approaches to use external or 3rd party code:
+
+```js
+// use standard util functions in `$.utils`
+// you can find those util functions in `src/workflow-utils/`
+$.utils.securityGroup.checkEC2Instances(...);
+
+// use http request to retrieve 3rd party code
+eval(await $.axios.get("https://example.com"));
+
+// use steps from other workflow
+let res = await $.axios.get("https://example.com/some-workflow.yml");
+let workflow = $.yaml.load(res.data);
+await eval(`
+  (async () => {
+    ${workflow.steps[0]}
+  })()
+`);
 ```
