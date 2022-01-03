@@ -160,6 +160,10 @@ await $.utils.securityGroup.checkEC2Instances({
 
 ### Output
 
+- `ok` means users **don't** need to check this step's output.
+- `info` means users need to check the output **manually**.
+- `err` means there **must** be something wrong.
+
 The output is rendered using `result.err || result.info || result.ok`, which means if your `$.err` is not empty, the output will not contain `$.info` and `$.ok`.
 
 The output is rendered as Markdown if your output starts with `/md\n`:
