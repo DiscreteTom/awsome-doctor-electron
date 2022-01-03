@@ -85,51 +85,40 @@ steps:
       }
   - name: Check security group inbound rules.
     js: |
-      let res;
-      try {
-        res = await $.aws.ec2.describeSecurityGroups({
-          GroupIds: $.data.securityGroupIds,
-        });
-      } catch (e) {
-        $.err = e;
+      let result = await $.utils.securityGroup.checkPort({
+        $,
+        direction: "in",
+        securityGroupIds: $.data.securityGroupIds,
+        protocol: $.data.protocol,
+        port: $.data.port,
+      });
+
+      if (result.err) {
+        $.err = result.err;
         return;
       }
 
-      // check `all traffic`
-      let maybeAllowAll = false;
-      let anyTrafficCidr = $.jp.query(
-        res,
-        "$..IpPermissions[?(@.IpProtocol=='-1')]..CidrIp"
-      );
-      if (anyTrafficCidr.length !== 0) {
-        if (anyTrafficCidr.indexOf("0.0.0.0/0" != -1)) {
-          $.ok =
-            "The security group's inbound rules allow all traffic from 0.0.0.0/0.";
-          return;
-        } else {
-          // not sure if it's ok, need more information
-          $.info += `All traffic from those CIDRs are allowed to access this instance: ${anyTrafficCidr.join(
-            ", "
-          )}. `;
-          maybeAllowAll = true;
-        }
+      if (result.portPeer.type == "no" && result.anyTrafficPeer.type == "no") {
+        $.err += `No IP is allowed to access this instance using ${$.data.protocol} at port ${$.data.port}, please fix your security group inbound rules. `;
+        return;
       }
 
-      let pingCidr = $.jp.query(
-        res,
-        `$..IpPermissions[?(@.IpProtocol=='${$.data.protocol}' && (@.FromPort==${$.data.port} || @.FromPort==-1))]..CidrIp`
-      );
-      if (pingCidr.length === 0) {
-        if (!maybeAllowAll) {
-          $.err += `No IP is allowed to access this instance's port ${$.data.port} using ${$.data.protocol}, please fix your security group inbound rules. `;
-        }
-      } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
-        $.ok = `The security group's inbound rules allow access from 0.0.0.0/0 at port ${$.data.port} using ${$.data.protocol}. `;
-      } else {
-        // not sure if it's ok, need more information
-        $.info += `Those CIDRs are allowed to access your instance's port ${
-          $.data.port
-        } using ${$.data.protocol}: ${pingCidr.join(", ")}. `;
+      if (result.anyTrafficPeer.type == "any") {
+        $.ok = "All traffic from 0.0.0.0/0 are allowed.";
+        return;
+      } else if (result.anyTrafficPeer.type == "cidr") {
+        $.info += `All traffic from those CIDRs are allowed: ${result.anyTrafficPeer.cidr.join(
+          ", "
+        )}. `;
+      }
+
+      if (result.portPeer.type == "any") {
+        $.ok = "Traffic is allowed from 0.0.0.0/0";
+        return;
+      } else if (result.portPeer.type == "cidr") {
+        $.info += `Traffic is allowed from those CIDRs: ${result.portPeer.cidr.join(
+          ", "
+        )}. `;
       }
   - name: Check route table.
     js: |

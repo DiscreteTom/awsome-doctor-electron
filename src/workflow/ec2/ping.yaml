@@ -66,52 +66,39 @@ steps:
       }
   - name: Check security group inbound rules.
     js: |
-      let res;
-      try {
-        res = await $.aws.ec2.describeSecurityGroups({
-          GroupIds: $.data.securityGroupIds,
-        });
-      } catch (e) {
-        $.err = e;
+      let result = await $.utils.securityGroup.checkPort({
+        $,
+        direction: "in",
+        securityGroupIds: $.data.securityGroupIds,
+        protocol: "icmp",
+        port: 8, // echo request
+      });
+
+      if (result.err) {
+        $.err = result.err;
         return;
       }
 
-      // check `all traffic`
-      let maybeAllowAll = false;
-      let anyTrafficCidr = $.jp.query(
-        res,
-        "$..IpPermissions[?(@.IpProtocol=='-1')]..CidrIp"
-      );
-      if (anyTrafficCidr.length !== 0) {
-        if (anyTrafficCidr.indexOf("0.0.0.0/0" != -1)) {
-          $.ok =
-            "The security group's inbound rules allow all traffic from 0.0.0.0/0.";
-          return;
-        } else {
-          // not sure if it's ok, need more information
-          $.info += `All traffic from those CIDRs are allowed to access this instance: ${anyTrafficCidr.join(
-            ", "
-          )}. `;
-          maybeAllowAll = true;
-        }
+      if (result.portPeer.type == "no" && result.anyTrafficPeer.type == "no") {
+        $.err +=
+          "No IP is allowed to ping this instance, please fix your security group inbound rules. ";
+        return;
       }
 
-      // check `all icmp` or `icmp echo request`
-      let pingCidr = $.jp.query(
-        res,
-        // allow echo request, or allow all icmp
-        "$..IpPermissions[?(@.IpProtocol=='icmp' && (@.FromPort==8 || @.FromPort==-1))]..CidrIp"
-      );
-      if (pingCidr.length === 0) {
-        if (!maybeAllowAll) {
-          $.err +=
-            "No IP is allowed to ping this instance, please fix your security group inbound rules. ";
-        }
-      } else if (pingCidr.indexOf("0.0.0.0/0") != -1) {
-        $.ok = "The security group's inbound rules allow ping from 0.0.0.0/0";
-      } else {
-        // not sure if it's ok, need more information
-        $.info += `Those CIDRs are allowed to ping your instance: ${pingCidr.join(
+      if (result.anyTrafficPeer.type == "any") {
+        $.ok = "All traffic from 0.0.0.0/0 are allowed.";
+        return;
+      } else if (result.anyTrafficPeer.type == "cidr") {
+        $.info += `All traffic from those CIDRs are allowed: ${result.anyTrafficPeer.cidr.join(
+          ", "
+        )}. `;
+      }
+
+      if (result.portPeer.type == "any") {
+        $.ok = "Ping is allowed from 0.0.0.0/0";
+        return;
+      } else if (result.portPeer.type == "cidr") {
+        $.info += `Ping is allowed from those CIDRs: ${result.portPeer.cidr.join(
           ", "
         )}. `;
       }
