@@ -14,6 +14,7 @@ const defaultConfig = {
   editorFontSize: 10,
   editorDarkMode: true,
   editorShowInvisibles: true,
+  editorAutoFormat: true,
 };
 
 export default {

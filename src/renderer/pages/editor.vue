@@ -536,6 +536,7 @@ export default {
     document.addEventListener("keydown", this.handleKeyDown);
     this.editorDark = this.$store.state.editorDarkMode;
     this.editorShowInvisible = this.$store.state.editorShowInvisibles;
+    this.editorAutoFormat = this.$store.state.editorAutoFormat;
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this.handleKeyDown);
@@ -546,6 +547,9 @@ export default {
     },
     editorShowInvisible(val) {
       this.$store.commit("updateConfig", { editorShowInvisibles: val });
+    },
+    editorAutoFormat(val) {
+      this.$store.commit("updateConfig", { editorAutoFormat: val });
     },
   },
 };
