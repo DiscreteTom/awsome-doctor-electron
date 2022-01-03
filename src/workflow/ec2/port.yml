@@ -100,6 +100,7 @@ steps:
 
       if (result.portPeer.type == "no" && result.anyTrafficPeer.type == "no") {
         $.err += `No IP is allowed to access this instance using ${$.data.protocol} at port ${$.data.port}, please fix your security group inbound rules. `;
+        $.err += `Security group ids: ${$.data.securityGroupIds.join(", ")}`;
         return;
       }
 
