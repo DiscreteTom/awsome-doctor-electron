@@ -122,7 +122,10 @@ let $ = {
   // util functions in `src/workflow-utils/` folder
   utils: {
     ...
-  }
+  },
+
+  // stop executing remaining workflows
+  stop: false,
 };
 ```
 
