@@ -16,6 +16,7 @@
  * ```
  * {
  *   err,
+ *   securityGroupIds: [],
  *   anyTrafficPeer: {
  *     type: 'any|cidr|no',
  *     cidr: [], // if type == 'cidr'
@@ -42,7 +43,10 @@ async function checkEC2Instances({
     return { err };
   }
 
-  return await checkPort({ $, direction, securityGroupIds, protocol, port });
+  return {
+    securityGroupIds,
+    ...(await checkPort({ $, direction, securityGroupIds, protocol, port })),
+  };
 }
 
 /**
