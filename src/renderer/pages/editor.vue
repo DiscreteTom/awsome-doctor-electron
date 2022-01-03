@@ -238,6 +238,19 @@
             </template>
             <span>Show Invisibles</span>
           </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <span v-on="on">
+                <v-switch
+                  v-model="editorAutoFormat"
+                  inset
+                  hide-details
+                  color="yellow"
+                ></v-switch>
+              </span>
+            </template>
+            <span>Format on Save</span>
+          </v-tooltip>
           <tt-btn
             tt="Decrease Font Size"
             icon="mdi-format-font-size-decrease"
@@ -331,6 +344,7 @@ const defaultData = {
   externalUrl: "",
   openUrlDialogErr: null,
   openingExternalUrl: false,
+  editorAutoFormat: true,
 };
 
 export default {
@@ -408,9 +422,15 @@ export default {
       this.steps = result;
     },
     exportNewFile() {
+      if (this.editorAutoFormat) {
+        this.formatAllCode();
+      }
       this.$ipc.send("choose-file", { title: "Save workflow" });
     },
     saveFile() {
+      if (this.editorAutoFormat) {
+        this.formatAllCode();
+      }
       if (this.currentFilePath) {
         this.$ipc.send("save-file", {
           filePath: this.currentFilePath,
@@ -418,6 +438,11 @@ export default {
         });
       } else {
         this.exportNewFile();
+      }
+    },
+    formatAllCode() {
+      for (let i = 0; i < this.steps.length; ++i) {
+        this.formatCode(i);
       }
     },
     expand(i) {
