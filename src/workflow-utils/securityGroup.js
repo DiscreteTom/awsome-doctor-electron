@@ -82,7 +82,7 @@ async function checkPort({ $, direction, securityGroupIds, protocol, port }) {
   }
 
   let anyTrafficPeer = allowAnyPeer({
-    cidrs: getAnyTrafficCidrs({ $, res, direction }),
+    cidr: getAnyTrafficCidr({ $, res, direction }),
   });
 
   if (anyTrafficPeer.type == "any") {
@@ -92,7 +92,7 @@ async function checkPort({ $, direction, securityGroupIds, protocol, port }) {
   }
 
   result.portPeer = allowAnyPeer({
-    cidrs: getPortCidr({ $, res, direction, protocol, port }),
+    cidr: getPortCidr({ $, res, direction, protocol, port }),
   });
   return result;
 }
@@ -108,7 +108,7 @@ async function checkPort({ $, direction, securityGroupIds, protocol, port }) {
  *
  * A list of CIDR. E.g.: `['0.0.0.0/0', '192.168.0.0/16']`.
  */
-function getAnyTrafficCidrs({ $, res, direction }) {
+function getAnyTrafficCidr({ $, res, direction }) {
   return $.jp.query(
     res,
     `$..${
@@ -120,7 +120,7 @@ function getAnyTrafficCidrs({ $, res, direction }) {
 /**
  * ## Params
  *
- * - `cidrs`: A list of CIDR, e.g. `['0.0.0.0/0', '192.168.0.0'16']`.
+ * - `cidr`: A list of CIDR, e.g. `['0.0.0.0/0', '192.168.0.0'16']`.
  *
  * ## Return
  *
@@ -131,14 +131,14 @@ function getAnyTrafficCidrs({ $, res, direction }) {
  * }
  * ```
  */
-function allowAnyPeer({ cidrs }) {
-  if (cidrs.length === 0) {
+function allowAnyPeer({ cidr }) {
+  if (cidr.length === 0) {
     return { type: "no" };
   } else {
-    if (cidrs.indexOf("0.0.0.0/0" != -1)) {
+    if (cidr.indexOf("0.0.0.0/0" != -1)) {
       return { type: "any" };
     } else {
-      return { type: "cidr", cidr: cidrs };
+      return { type: "cidr", cidr };
     }
   }
 }
@@ -167,7 +167,7 @@ function getPortCidr({ $, res, direction, protocol, port }) {
 
 module.exports = {
   checkPort,
-  getAnyTrafficCidrs,
+  getAnyTrafficCidr,
   allowAnyPeer,
   getPortCidr,
   checkEC2Instances,
