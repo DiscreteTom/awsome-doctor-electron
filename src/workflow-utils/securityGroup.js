@@ -16,6 +16,7 @@
  * ```
  * {
  *   err,
+ *   res, // the response of `describeSecurityGroups`, see https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-ec2/interfaces/describesecuritygroupscommandoutput.html
  *   securityGroupIds: [],
  *   anyTrafficPeer: {
  *     type: 'any|cidr|no',
@@ -63,6 +64,7 @@ async function checkEC2Instances({
  * ```
  * {
  *   err,
+ *   res, // the response of `describeSecurityGroups`, see https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-ec2/interfaces/describesecuritygroupscommandoutput.html
  *   anyTrafficPeer: {
  *     type: 'any|cidr|no',
  *     cidr: [], // if type == 'cidr'
@@ -90,7 +92,7 @@ async function checkPort({ $, direction, securityGroupIds, protocol, port }) {
   });
 
   if (anyTrafficPeer.type == "any") {
-    return { anyTrafficPeer };
+    return { anyTrafficPeer, res };
   } else {
     result.anyTrafficPeer = anyTrafficPeer;
   }
@@ -98,6 +100,7 @@ async function checkPort({ $, direction, securityGroupIds, protocol, port }) {
   result.portPeer = allowAnyPeer({
     cidr: getPortCidr({ $, res, direction, protocol, port }),
   });
+  result.res = res;
   return result;
 }
 
@@ -169,10 +172,33 @@ function getPortCidr({ $, res, direction, protocol, port }) {
   );
 }
 
+/**
+ * ## Params
+ *
+ * - `$`: context
+ * - `res`: the response of `describeSecurityGroups`, see https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-ec2/interfaces/describesecuritygroupscommandoutput.html
+ * - `direction`: `'in'`/`'out'`
+ * - `protocol`: `'tcp'`/`'ucp'`/`'icmp'`
+ * - `port`
+ *
+ * ## Return
+ *
+ * A list of security group ids.
+ */
+function getPortPeerSecurityGroup({ $, res, direction, protocol, port }) {
+  return $.jp.query(
+    res,
+    `$..${
+      direction == "in" ? "IpPermissions" : "IpPermissionsEgress"
+    }[?(@.IpProtocol=='${protocol}' && (@.FromPort==${port} || @.FromPort==-1))]..GroupId`
+  );
+}
+
 module.exports = {
   checkPort,
   getAnyTrafficCidr,
   allowAnyPeer,
   getPortCidr,
   checkEC2Instances,
+  getPortPeerSecurityGroup,
 };
