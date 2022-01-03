@@ -101,6 +101,7 @@ export default {
           ok: "",
           info: "",
           utils: this.$workflowUtils,
+          stop: false,
         };
         try {
           await eval(`(async ()=>{${step.js}})()`);
@@ -128,6 +129,7 @@ export default {
         }
 
         if ($.err) break;
+        if ($.stop) break;
       }
     },
     reset() {
