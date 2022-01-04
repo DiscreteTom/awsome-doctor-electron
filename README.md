@@ -11,7 +11,8 @@ A desktop application that helps you to trouble shoot your AWS environment issue
   - Environment variables.
   - You can also manually input temporary credentials, which will not be stored.
 - YAML format workflow file.
-  - You don't need to have web skills to create a new workflow.
+  - You don't need to have web/frontend skills to create a new workflow.
+  - Use URL to open external workflows.
 - Markdown format output.
   - External links, titles, styled fonts, codes, etc.
 - Built-in responsive workflow editor.
@@ -37,6 +38,8 @@ yarn build
 
 ### File Structure
 
+> The built-in editor is preferred to generate or edit workflow files, so you don't have to learn how to write YAML files.
+
 A workflow consists of 4 parts in a yaml file:
 
 ```yaml
@@ -58,8 +61,6 @@ steps:
     js: | # multiline string
       $.ok = "OK"
 ```
-
-You can use the built-in editor to generate new workflows or edit existing workflows.
 
 ### Eval the Code
 
@@ -95,7 +96,7 @@ You can access a context variable `$` in your JavaScript code. The context varia
 
 ```js
 let $ = {
-  // AWS JavaScript SDK v3 service client
+  // AWS JavaScript SDK V3, see https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html
   aws: {
     ec2: Object, // EC2 client
     rds: Object, // RDS client
@@ -120,9 +121,7 @@ let $ = {
   ok: "",
 
   // util functions in `src/workflow-utils/` folder
-  utils: {
-    ...
-  },
+  utils: { ... },
 
   // stop executing remaining workflows
   stop: false,
@@ -159,6 +158,9 @@ await $.utils.securityGroup.checkEC2Instances({
   protocol: "tcp",
   port: 22,
 });
+
+// stop workflow
+$.stop = true;
 ```
 
 ### Output
@@ -172,6 +174,7 @@ The output is rendered using `result.err || result.info || result.ok`, which mea
 The output is rendered as Markdown if your output starts with `/md\n`:
 
 ```js
+// use multiline string
 $.ok = `/md
 # title
 
@@ -188,12 +191,13 @@ console.log(123);
 \`\`\`
 `;
 
-$.ok = "/md\nInline **markdown**.";
+// use normal string
+$.ok = "/md\n# Markdown";
 ```
 
 ### Modularization
 
-There are some approaches to use external or 3rd party code:
+There are some approaches to reuse external or 3rd party code:
 
 ```js
 // use standard util functions in `$.utils`
