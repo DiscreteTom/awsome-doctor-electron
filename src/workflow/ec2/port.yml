@@ -14,7 +14,7 @@ input:
     placeholder: '22'
     store: port
   - label: Protocol
-    placeholder: tcp / udp
+    placeholder: tcp / udp / icmp
     store: protocol
 steps:
   - name: Validate input.
@@ -23,8 +23,8 @@ steps:
         $.err = "Wrong port.";
         return;
       }
-      if ($.data.protocol != "tcp" && $.data.protocol != "udp") {
-        $.err = 'Protocol should be one of "tcp", "udp".';
+      if (!["tcp", "udp", "icmp"].includes($.data.protocol)) {
+        $.err = 'Protocol should be one of "tcp", "udp", "icmp".';
         return;
       }
       $.ok = "OK.";
@@ -122,7 +122,7 @@ steps:
         )}. `;
       }
   - name: Check route table.
-    js: |-
+    js: |
       let res = await $.utils.vpc.checkSubnetIgw({
         $,
         subnetId: $.data.subnetId,
