@@ -25,8 +25,8 @@ steps:
         return;
       }
 
-      let lb = res.LoadBalancers[0]
-      let type = lb.Type
+      let lb = res.LoadBalancers[0];
+      let type = lb.Type;
       $.data.lbSgs = lb.SecurityGroups;
       $.data.lbArn = lb.LoadBalancerArn;
 
