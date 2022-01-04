@@ -179,7 +179,51 @@
               />
             </v-col>
           </v-row>
-          <v-btn @click="addStep" class="mt-3">Add Step</v-btn>
+
+          <div class="d-flex">
+            <v-btn @click="addStep" class="mt-3">Add Step</v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <span v-on="on">
+                  <v-switch
+                    class="ml-3"
+                    v-model="editorDark"
+                    inset
+                    hide-details
+                    color="black"
+                  ></v-switch>
+                </span>
+              </template>
+              <span>Dark Mode</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <span v-on="on">
+                  <v-switch
+                    class="ml-3"
+                    v-model="editorShowInvisible"
+                    inset
+                    hide-details
+                  ></v-switch>
+                </span>
+              </template>
+              <span>Show Invisibles</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <span v-on="on">
+                  <v-switch
+                    class="ml-3"
+                    v-model="editorAutoFormat"
+                    inset
+                    hide-details
+                    color="yellow"
+                  ></v-switch>
+                </span>
+              </template>
+              <span>Format on Save</span>
+            </v-tooltip>
+          </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
 
@@ -210,7 +254,12 @@
             bottom
           />
           <v-toolbar-title class="ml-3">
-            Editing Step: {{ steps[editingIndex].name }}
+            Editing Workflow:
+            <span class="text-decoration-underline"> {{ title }} </span>
+            Step:
+            <span class="text-decoration-underline">
+              {{ steps[editingIndex].name }}
+            </span>
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom>
@@ -269,10 +318,6 @@
             @click="formatCode(editingIndex)"
             bottom
           />
-          <tt-btn tt="Save" icon="mdi-check" @click="editorSave" bottom />
-          <v-toolbar-items>
-            <!-- <v-btn dark text @click="dialog = false"> Save </v-btn> -->
-          </v-toolbar-items>
         </v-toolbar>
         <code-editor
           ref="fullScreenCodeEditor"
@@ -453,9 +498,6 @@ export default {
           this.$store.state.editorFontSize
         );
       });
-    },
-    editorSave() {
-      this.fullscreenEdit = false;
     },
     formatCode(stepIndex) {
       this.steps[stepIndex].js = prettier.format(this.steps[stepIndex].js, {
