@@ -101,6 +101,10 @@ let $ = {
     ec2: Object, // EC2 client
     rds: Object, // RDS client
     ...
+
+    EC2, // EC2 SDK
+    RDS, // RDS SDK
+    ...
   },
 
   // The data you defined in your workflow file.
@@ -197,6 +201,8 @@ $.ok = "/md\n# Markdown";
 
 ### Modularization
 
+> External workflows might be **dangerous** since your AK/SK can be retrieved through `await $.aws.ec2.config.credentials()`.
+
 There are some approaches to reuse external or 3rd party code:
 
 ```js
@@ -215,4 +221,24 @@ await eval(`
     ${workflow.steps[0]}
   })()
 `);
+```
+
+### Multi-region or Multi-account
+
+> For simple usage, you can set a default region and default AWS profile in Settings page. Whenever you change those settings, all AWS service clients will be recreated and you can access those clients by `$.aws`.
+
+If you need to access multiple region or multi account, you can create your own service client. E.g.:
+
+```js
+// retrieve current credentials
+let credentials = await $.aws.ec2.config.credentials();
+
+// construct config with new credentials or region code
+let config = {
+  credentials,
+  region: "us-east-2",
+};
+
+// create your own service client and stored in your workflow data
+$.data.myEc2 = new $.aws.EC2(config);
 ```
