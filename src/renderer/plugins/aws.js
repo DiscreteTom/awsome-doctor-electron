@@ -3,7 +3,8 @@ import { EC2 } from "@aws-sdk/client-ec2";
 import { RDS } from "@aws-sdk/client-rds";
 import { ElasticLoadBalancingV2 } from "@aws-sdk/client-elastic-load-balancing-v2";
 
-let aws = {};
+// init `aws` with all client sdk
+let aws = { S3, EC2, RDS, ElasticLoadBalancingV2 };
 
 function configure({ accessKeyId, secretAccessKey, region }) {
   let config = {
@@ -13,6 +14,8 @@ function configure({ accessKeyId, secretAccessKey, region }) {
     },
     region,
   };
+
+  // init all clients
   aws["ec2"] = new EC2(config);
   aws["s3"] = new S3(config);
   aws["rds"] = new RDS(config);
