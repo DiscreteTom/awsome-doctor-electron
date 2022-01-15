@@ -1,7 +1,7 @@
 {
   "name": "awsome-doctor",
   "version": "0.0.1",
-  "description": "An electron-nuxt project",
+  "description": "An AWS troubleshooting tool.",
   "main": "./dist/main/index.js",
   "scripts": {
     "dev": "node .electron-nuxt/dev.js",
@@ -10,9 +10,9 @@
     "postinstall": "electron-builder install-app-deps "
   },
   "keywords": [],
-  "author": "DiscreteTom",
+  "author": "DiscreteTom <discrete_tom@outlook.com>",
   "license": "MIT",
-  "homepage": "https://github.com/michalzaq12/electron-nuxt/blob/master/README.md",
+  "homepage": "https://github.com/DiscreteTom/awsome-doctor",
   "engines": {
     "node": ">=14.14.9"
   },
