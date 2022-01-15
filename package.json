@@ -1,6 +1,6 @@
 {
   "name": "awsome-doctor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An AWS troubleshooting tool.",
   "main": "./dist/main/index.js",
   "scripts": {
