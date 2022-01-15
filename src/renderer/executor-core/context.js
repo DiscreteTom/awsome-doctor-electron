@@ -1,7 +1,7 @@
 import { aws } from "./aws";
 import jp from "jsonpath";
 import * as yaml from "js-yaml";
-import workflowUtils from "../../workflow-utils";
+import workflowUtils from "./utils";
 import axios from "@nuxtjs/axios";
 
 export default {
