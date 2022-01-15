@@ -242,3 +242,5 @@ let config = {
 // create your own service client and stored in your workflow data
 $.data.myEc2 = new $.aws.EC2(config);
 ```
+
+### [CHANGELOG](https://github.com/DiscreteTom/awsome-doctor/blob/main/CHANGELOG.md)
