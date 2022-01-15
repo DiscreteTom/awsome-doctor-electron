@@ -1,10 +1,8 @@
 let { workflows } = require("./serverUtils/workflow-loader");
-let { workflowUtilsText } = require("./serverUtils/workflow-utils-loader");
 
 module.exports = {
   env: {
     workflows,
-    workflowUtilsText,
   },
   ssr: false,
   target: "static",
@@ -19,7 +17,6 @@ module.exports = {
     { src: "@/plugins/aws.js" },
     { src: "@/plugins/bus.js" },
     { src: "@/plugins/workflow.js" },
-    { src: "@/plugins/workflow-utils.js" },
     { src: "@/plugins/ipc.js" },
     { src: "@/plugins/md.js" },
   ],

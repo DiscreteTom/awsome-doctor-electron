@@ -79,7 +79,7 @@ async function getSubnetRouteTable({ $, vpcId, subnetId }) {
   }
 }
 
-module.exports = {
+export default {
   checkSubnetIgw,
   getSubnetRouteTable,
 };

@@ -194,7 +194,7 @@ function getPortPeerSecurityGroup({ $, res, direction, protocol, port }) {
   );
 }
 
-module.exports = {
+export default {
   checkPort,
   getAnyTrafficCidr,
   allowAnyPeer,

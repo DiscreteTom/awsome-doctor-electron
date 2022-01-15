@@ -67,6 +67,7 @@
 <script>
 import jp from "jsonpath";
 import * as yaml from "js-yaml";
+import workflowUtils from "../../workflow-utils";
 
 export default {
   props: {
@@ -100,7 +101,7 @@ export default {
           err: "",
           ok: "",
           info: "",
-          utils: this.$workflowUtils,
+          utils: workflowUtils,
           stop: false,
         };
         try {
