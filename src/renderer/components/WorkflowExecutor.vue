@@ -65,9 +65,7 @@
 </template>
 
 <script>
-import jp from "jsonpath";
-import * as yaml from "js-yaml";
-import workflowUtils from "../../workflow-utils";
+import executor from "../executor-core";
 
 export default {
   props: {
@@ -84,6 +82,7 @@ export default {
     async submit() {
       this.started = true;
       this.results = [];
+
       for (let i = 0; i < this.workflow.steps.length; ++i) {
         let step = this.workflow.steps[i];
         // update result
@@ -91,46 +90,34 @@ export default {
           pending: true,
           name: step.name,
         });
-        // prepare eval env
-        let $ = {
-          aws: this.$aws,
-          data: this.workflowData,
-          axios: this.$axios,
-          jp,
-          yaml,
-          err: "",
-          ok: "",
-          info: "",
-          utils: workflowUtils,
-          stop: false,
-        };
-        try {
-          await eval(`(async ()=>{${step.js}})()`);
-        } catch (e) {
-          this.results[i].pending = false;
-          this.results[i].err = e;
-          break; // stop following steps
-        }
+
+        let output = await executor.run(step.js, this.workflowData);
+
         // update result
         this.results[i].pending = false;
         this.results[i].markdown = false;
-        this.results[i].err = $.err;
-        this.results[i].info = $.info;
-        this.results[i].ok = $.ok;
+        this.results[i].err = output.err;
+        this.results[i].info = output.info;
+        this.results[i].ok = output.ok;
+
         const mdPrefix = "/md\n";
-        if (typeof $.err == "string" && $.err.startsWith(mdPrefix)) {
-          this.results[i].err = this.$md.parse($.err.slice(mdPrefix.length));
-          this.results[i].markdown = true;
-        } else if (typeof $.info == "string" && $.info.startsWith(mdPrefix)) {
-          this.results[i].info = this.$md.parse($.info.slice(mdPrefix.length));
-          this.results[i].markdown = true;
-        } else if (typeof $.ok == "string" && $.ok.startsWith(mdPrefix)) {
-          this.results[i].ok = this.$md.parse($.ok.slice(mdPrefix.length));
-          this.results[i].markdown = true;
+        function parseMarkdown(output, result, field, md) {
+          let value = output[field];
+          if (typeof value == "string" && value.startsWith(mdPrefix)) {
+            result[field] = md.parse(value.slice(mdPrefix.length));
+            result.markdown = true;
+          }
+          return result.markdown;
         }
 
-        if ($.err) break;
-        if ($.stop) break;
+        if (!parseMarkdown(output, this.results[i], "err", this.$md)) {
+          if (!parseMarkdown(output, this.results[i], "info", this.$md)) {
+            parseMarkdown(output, this.results[i], "ok", this.$md);
+          }
+        }
+
+        if (output.err) break;
+        if (output.stop) break;
       }
     },
     reset() {

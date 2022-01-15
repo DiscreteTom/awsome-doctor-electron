@@ -50,6 +50,7 @@
 
 <script>
 import TtBtn from "../components/TtBtn.vue";
+import executor from "../executor-core";
 
 export default {
   components: { TtBtn },
@@ -67,7 +68,7 @@ export default {
       });
     });
     this.$ipc.one("get-aws-credentials", (event, arg) => {
-      this.$aws.configure({ ...arg, region: this.$store.state.region });
+      executor.configure({ ...arg, region: this.$store.state.region });
     });
 
     let { tempAk, tempSk, useProfile, ...rest } =

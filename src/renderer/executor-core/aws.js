@@ -24,6 +24,4 @@ function configure({ accessKeyId, secretAccessKey, region }) {
 
 aws["configure"] = configure;
 
-export default (context, inject) => {
-  inject("aws", aws);
-};
+export { aws };

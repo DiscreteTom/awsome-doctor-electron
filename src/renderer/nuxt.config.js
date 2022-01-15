@@ -14,7 +14,6 @@ module.exports = {
   loading: false,
   plugins: [
     { ssr: true, src: "@/plugins/icons.js" },
-    { src: "@/plugins/aws.js" },
     { src: "@/plugins/bus.js" },
     { src: "@/plugins/workflow.js" },
     { src: "@/plugins/ipc.js" },
