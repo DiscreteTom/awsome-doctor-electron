@@ -1,6 +1,6 @@
 # **This repo is deprecated.**
 
-See [awsome-doctor-view](https://github.com/DiscreteTom/awsome-doctor-view) and [awsome-doctor-content](https://github.com/DiscreteTom/awsome-doctor-content) instead.
+See [awsome-doctor](https://github.com/DiscreteTom/awsome-doctor) and [awsome-doctor-view](https://github.com/DiscreteTom/awsome-doctor-view) instead.
 
 # Awsome Doctor
 
