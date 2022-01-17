@@ -1,3 +1,7 @@
+# **This repo is deprecated.**
+
+See [awsome-doctor-view](https://github.com/DiscreteTom/awsome-doctor-view) and [awsome-doctor-content](https://github.com/DiscreteTom/awsome-doctor-content) instead.
+
 # Awsome Doctor
 
 > Powered by [electron-nuxt](https://github.com/michalzaq12/electron-nuxt).
@@ -243,4 +247,4 @@ let config = {
 $.data.myEc2 = new $.aws.EC2(config);
 ```
 
-### [CHANGELOG](https://github.com/DiscreteTom/awsome-doctor/blob/main/CHANGELOG.md)
+### [CHANGELOG](https://github.com/DiscreteTom/awsome-doctor-electron/blob/main/CHANGELOG.md)
